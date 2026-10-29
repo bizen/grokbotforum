@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { t } from '../../utils/i18n';
+import recommendedBots from '../../data/recommended-bots.json';
+
+const lang = 'en';
+
+interface Bot {
+  name: string;
+  job: string;
+  link: string;
+}
+
+const bots = recommendedBots as Bot[];
+---
+
+<BaseLayout 
+  title={t(lang, 'bots.title')}
+  lang={lang}
+  alternateUrl="/bots/"
+>
+  <h1>{t(lang, 'bots.title')}</h1>
+  
+  {bots.length === 0 ? (
+    <p class="empty-state">{t(lang, 'bots.empty')}</p>
+  ) : (
+    <ul class="bot-list">
+      {bots.map(bot => (
+        <li class="bot-item">
+          <article>
+            <h2>{bot.name}</h2>
+            <p class="job">
+              <strong>{t(lang, 'bots.job')}:</strong> {bot.job}
+            </p>
+            <p>
+              <a href={bot.link} target="_blank" rel="noopener noreferrer">
+                {bot.link}
+              </a>
+            </p>
+          </article>
+        </li>
+      ))}
+    </ul>
+  )}
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 2rem;
+  }
+  
+  .empty-state {
+    color: #666;
+    font-style: italic;
+    text-align: center;
+    padding: 3rem 0;
+  }
+  
+  .bot-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .bot-item {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    background: #fafafa;
+  }
+  
+  .bot-item h2 {
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    color: var(--color-text);
+  }
+  
+  .job {
+    margin-bottom: 0.5rem;
+    color: #444;
+  }
+  
+  .bot-item a {
+    word-break: break-all;
+  }
+</style>

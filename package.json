@@ -1,5 +1,5 @@
 {
-  "name": "magical-meteor",
+  "name": "grokbotforum",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/rss": "^4.0.19",
     "astro": "^7.4.4"
   }
 }

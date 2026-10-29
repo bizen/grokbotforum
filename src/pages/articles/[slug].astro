@@ -1,0 +1,153 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { t } from '../../utils/i18n';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('articles');
+  return articles.map(article => ({
+    params: { slug: article.slug },
+    props: { article },
+  }));
+}
+
+const { article } = Astro.props;
+const { Content } = await article.render();
+
+const lang = article.data.language;
+const isJapanese = lang === 'ja';
+
+let alternateUrl: string | undefined;
+if (article.data.translationSlug) {
+  alternateUrl = isJapanese 
+    ? `/en/articles/${article.data.translationSlug}/`
+    : `/articles/${article.data.translationSlug}/`;
+}
+---
+
+<BaseLayout 
+  title={article.data.title}
+  description={article.data.description}
+  lang={lang}
+  alternateUrl={alternateUrl}
+  ogType="article"
+>
+  <article class="article">
+    <header>
+      <h1>{article.data.title}</h1>
+      <time datetime={article.data.date.toISOString()}>
+        {article.data.date.toLocaleDateString(isJapanese ? 'ja-JP' : 'en-US', { 
+          year: 'numeric', 
+          month: 'long', 
+          day: 'numeric' 
+        })}
+      </time>
+      {alternateUrl && (
+        <p class="translation-link">
+          <a href={alternateUrl}>
+            {isJapanese ? '→ English version' : '→ 日本語版'}
+          </a>
+        </p>
+      )}
+    </header>
+    
+    <div class="content">
+      <Content />
+    </div>
+    
+    {article.data.sources.length > 0 && (
+      <footer class="sources">
+        <h2>{t(lang, 'article.sources')}</h2>
+        <ul>
+          {article.data.sources.map(source => (
+            <li>
+              <a href={source} target="_blank" rel="noopener noreferrer">
+                {source}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </footer>
+    )}
+  </article>
+</BaseLayout>
+
+<style>
+  .article header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  
+  .article h1 {
+    font-size: 2rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  time {
+    display: block;
+    color: #666;
+    font-size: 0.9rem;
+  }
+  
+  .translation-link {
+    margin-top: 0.75rem;
+    font-size: 0.95rem;
+  }
+  
+  .content {
+    margin-bottom: 3rem;
+    font-size: 1.05rem;
+  }
+  
+  .content :global(h2) {
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+  
+  .content :global(h3) {
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    font-size: 1.25rem;
+  }
+  
+  .content :global(img) {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+  }
+  
+  .content :global(blockquote) {
+    border-left: 4px solid var(--color-border);
+    padding-left: 1rem;
+    margin: 1.5rem 0;
+    color: #666;
+    font-style: italic;
+  }
+  
+  .sources {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+  
+  .sources h2 {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .sources ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .sources li {
+    margin-bottom: 0.5rem;
+    word-break: break-all;
+  }
+  
+  .sources a {
+    font-size: 0.9rem;
+  }
+</style>
