@@ -45,85 +45,96 @@ const bots = recommendedBots as Bot[];
 
 <style>
   .page-title {
-    margin-bottom: 3rem;
-    font-size: 3rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
+    margin-bottom: calc(var(--grid-unit) * 8);
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700;
+    line-height: 1.0625;
   }
   
   .empty-state {
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
     text-align: center;
-    padding: 6rem 0;
-    font-size: 1.125rem;
+    padding: calc(var(--grid-unit) * 12) 0;
+    font-size: 17px;
   }
   
   .bot-grid {
     display: grid;
-    gap: 1.5rem;
+    gap: calc(var(--grid-unit) * 3);
+    max-width: var(--reading-width);
   }
   
   .bot-card {
-    padding: 2rem;
+    padding: calc(var(--grid-unit) * 4);
     background: var(--color-card-bg);
-    border: 1px solid var(--color-card-border);
-    border-radius: 16px;
+    border: 1px solid var(--color-border);
+    border-radius: 28px;
     transition: all var(--transition-speed) ease;
   }
   
   .bot-card:hover {
-    border-color: var(--color-border);
+    border-color: var(--color-text-secondary);
   }
   
   .bot-card h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1rem;
+    font-size: clamp(24px, 3vw, 32px);
+    margin-bottom: calc(var(--grid-unit) * 3);
     font-weight: 600;
-    letter-spacing: -0.02em;
+    line-height: 1.1428571429;
   }
   
   .job {
-    margin-bottom: 1rem;
+    margin-bottom: calc(var(--grid-unit) * 3);
     color: var(--color-text);
-    line-height: 1.6;
+    font-size: 17px;
+    line-height: inherit;
   }
   
   .job-label {
     display: block;
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
-    margin-bottom: 0.25rem;
-    font-weight: 500;
+    color: var(--color-text-secondary);
+    font-size: 14px;
+    margin-bottom: calc(var(--grid-unit) * 1);
+    font-weight: 400;
   }
   
   .bot-link {
-    display: inline-block;
-    color: var(--color-text-muted);
-    font-size: 0.875rem;
+    display: inline-flex;
+    align-items: center;
+    color: var(--color-accent);
+    font-size: 14px;
     word-break: break-all;
-    text-decoration: underline;
-    text-decoration-color: var(--color-border);
-    text-underline-offset: 3px;
-    transition: all var(--transition-speed) ease;
+    text-decoration: none;
+    min-height: 44px;
+  }
+  
+  .bot-link::after {
+    content: " ›";
+    margin-left: 0.25em;
+    transition: transform var(--transition-speed) ease;
+    display: inline-block;
   }
   
   .bot-link:hover {
-    color: var(--color-text);
-    text-decoration-color: var(--color-text-muted);
+    text-decoration: underline;
+    opacity: 0.8;
   }
   
-  @media (max-width: 768px) {
+  .bot-link:hover::after {
+    transform: translateX(2px);
+  }
+  
+  @media (max-width: 734px) {
     .page-title {
-      font-size: 2.25rem;
-      margin-bottom: 2rem;
+      margin-bottom: calc(var(--grid-unit) * 4);
     }
     
     .bot-card {
-      padding: 1.5rem;
+      padding: calc(var(--grid-unit) * 3);
     }
     
-    .bot-card h2 {
-      font-size: 1.25rem;
+    .empty-state {
+      padding: calc(var(--grid-unit) * 8) 0;
     }
   }
 </style>

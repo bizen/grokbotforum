@@ -17,23 +17,26 @@ const lang = 'en';
 
 <style>
   .page-title {
-    margin-bottom: 3rem;
-    font-size: 3rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
+    margin-bottom: calc(var(--grid-unit) * 8);
+    font-size: clamp(40px, 6vw, 64px);
+    font-weight: 700;
+    line-height: 1.0625;
   }
   
   .empty-state {
-    color: var(--color-text-muted);
+    color: var(--color-text-secondary);
     text-align: center;
-    padding: 6rem 0;
-    font-size: 1.125rem;
+    padding: calc(var(--grid-unit) * 12) 0;
+    font-size: 17px;
   }
   
-  @media (max-width: 768px) {
+  @media (max-width: 734px) {
     .page-title {
-      font-size: 2.25rem;
-      margin-bottom: 2rem;
+      margin-bottom: calc(var(--grid-unit) * 4);
+    }
+    
+    .empty-state {
+      padding: calc(var(--grid-unit) * 8) 0;
     }
   }
 </style>
