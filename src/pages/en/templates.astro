@@ -10,20 +10,30 @@ const lang = 'en';
   lang={lang}
   alternateUrl="/templates/"
 >
-  <h1>{t(lang, 'templates.title')}</h1>
+  <h1 class="page-title">{t(lang, 'templates.title')}</h1>
   
   <p class="empty-state">{t(lang, 'templates.empty')}</p>
 </BaseLayout>
 
 <style>
-  h1 {
-    margin-bottom: 2rem;
+  .page-title {
+    margin-bottom: 3rem;
+    font-size: 3rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
   }
   
   .empty-state {
-    color: #666;
-    font-style: italic;
+    color: var(--color-text-muted);
     text-align: center;
-    padding: 3rem 0;
+    padding: 6rem 0;
+    font-size: 1.125rem;
+  }
+  
+  @media (max-width: 768px) {
+    .page-title {
+      font-size: 2.25rem;
+      margin-bottom: 2rem;
+    }
   }
 </style>
