@@ -32,14 +32,15 @@ const url = new URL(itemPath(item), Astro.site).href;
 const shareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: `${data.title}｜Grok Bot Forum`, url })}`;
 
 // The text a reader will copy straight into Grok Bot.
-const copyBlock =
-  item.collection === 'prompts'
-    ? { label: t(lang, 'common.prompt'), text: data.prompt }
-    : item.collection === 'bots'
-      ? { label: t(lang, 'common.firstMessage'), text: data.job }
-      : null;
+const copyBlock = item.collection === 'prompts' ? { label: t(lang, 'common.prompt'), text: data.prompt } : null;
 
-const schemaType = { guides: 'TechArticle', news: 'NewsArticle', bots: 'HowTo', prompts: 'CreativeWork' }[item.collection];
+const schemaType = {
+  docs: 'TechArticle',
+  reference: 'TechArticle',
+  news: 'NewsArticle',
+  bots: 'SoftwareApplication',
+  prompts: 'CreativeWork',
+}[item.collection];
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': schemaType,
@@ -49,8 +50,11 @@ const jsonLd = {
   url,
   dateModified: isoDate(data.updated),
   ...(item.collection === 'news' ? { datePublished: isoDate(data.published) } : {}),
+  ...(item.collection === 'bots'
+    ? { applicationCategory: 'Grok Bot', author: { '@type': 'Person', name: data.creator }, sameAs: data.marketplace }
+    : {}),
   citation: data.sources.map((s) => s.url),
-  isPartOf: { '@type': 'WebSite', name: 'grokbotforum', url: new URL('/', Astro.site).href },
+  isPartOf: { '@type': 'WebSite', name: 'Grok Bot Forum', url: new URL('/', Astro.site).href },
 };
 ---
 
@@ -92,7 +96,23 @@ const jsonLd = {
         </aside>
       )}
 
-      {item.collection === 'bots' && data.apps.length > 0 && (
+      {item.collection === 'bots' && (
+        <aside class="market">
+          <dl>
+            <div><dt>{t(lang, 'bots.creator')}</dt><dd>{data.creator}</dd></div>
+            <div><dt>{t(lang, 'bots.source')}</dt><dd>{data.team ? t(lang, 'bots.team') : t(lang, 'bots.community')}</dd></div>
+          </dl>
+          <div class="market-actions">
+            {data.add && (
+              <a class="btn btn-primary btn-sm" href={data.add} rel="noopener">{t(lang, 'bots.add')} <span aria-hidden="true">↗</span></a>
+            )}
+            <a class="btn btn-secondary btn-sm" href={data.marketplace} rel="noopener">{t(lang, 'bots.marketplace')} <span aria-hidden="true">↗</span></a>
+          </div>
+          <p>{t(lang, 'bots.notice')}</p>
+        </aside>
+      )}
+
+      {(item.collection === 'bots' || item.collection === 'prompts') && data.apps.length > 0 && (
         <p class="apps">
           <span>{t(lang, 'common.apps')}</span>
           {data.apps.map((app) => <span class="chip">{app}</span>)}
@@ -214,6 +234,37 @@ const jsonLd = {
     border-radius: 0 var(--r-md) var(--r-md) 0;
     color: var(--fg-muted);
     font-size: 14px;
+  }
+  .market {
+    display: grid;
+    gap: var(--s-3);
+    margin-bottom: var(--s-6);
+    padding: var(--s-4);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--bg-subtle);
+    font-size: 14px;
+  }
+  .market dl {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-6);
+  }
+  .market dl div {
+    display: flex;
+    gap: var(--s-2);
+  }
+  .market dt {
+    color: var(--fg-subtle);
+  }
+  .market-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .market p {
+    color: var(--fg-muted);
+    font-size: 13px;
   }
   .apps {
     display: flex;

@@ -12,7 +12,7 @@ export async function GET({ site }: APIContext) {
     }),
   );
 
-  const text = `# grokbotforum
+  const text = `# Grok Bot Forum (grokbotforum.com)
 
 > Unofficial, source-cited knowledge base about Grok Bot (xAI): guides, bots, prompts, and news. Not affiliated with xAI or X Corp. All content is in Japanese; the official Grok Bot docs have no Japanese edition, and the docs collection explains each official page in Japanese.
 

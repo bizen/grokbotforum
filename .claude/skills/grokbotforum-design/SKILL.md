@@ -190,8 +190,9 @@ sources:                   # required (optional for prompts), real URLs
     title: ...
 ```
 
-Per collection: `bots` are **roles** for a Grok Bot — `job`
-(the first message that sets the Bot up) and `apps`; `prompts` add `prompt` (the text
+Per collection: `bots` are Japanese guides to Bots on the official Marketplace (x.ai/bot/marketplace) —
+`creator`, `marketplace`, `add`, `team`, `featured`, `apps`, paraphrased from the listing; first-message
+recipes of our own live in `prompts`; `prompts` add `prompt` (the text
 to copy); `news` add `published`. The slug is the stable id — never rename a
 published file.
 
@@ -223,6 +224,12 @@ For every collection, also emit:
 
 These endpoints are the contract a future MCP server and Grok custom bot will read.
 Don't rename fields without updating every consumer.
+
+### Markdown gotcha (Japanese)
+
+Bold can't close right after full-width punctuation when text follows: `**…）**が` renders the
+asterisks literally. Keep closing punctuation outside the bold (`**…**（…）が`). Astro 7's default
+Markdown processor doesn't run remark plugins, so there is no plugin fix.
 
 ## 8. Writing style (UI copy)
 

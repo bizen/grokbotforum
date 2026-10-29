@@ -18,7 +18,8 @@ Not affiliated with xAI or X Corp.
 src/
 ├── content/                 # Markdown content, one folder per collection
 │   ├── docs/ja/             # Japanese explanations of docs.x.ai/grok-bot (one per official page)
-│   ├── bots/ja/        # Bot roles: a job + the first message that sets it up
+│   ├── bots/ja/            # Japanese guides to Bots on the official Grok Bot Marketplace
+│   ├── reference/ja/       # Cross-cutting pages (limits, plans)
 │   ├── prompts/ja/
 │   └── news/ja/
 ├── content.config.ts        # Schemas for every collection
@@ -62,8 +63,9 @@ Extra fields by collection (see `src/content.config.ts`):
 | Collection | Extra fields |
 |---|---|
 | `docs` | `official`: URL of the official page. Explain in your own words — no verbatim translation (docs.x.ai has no license). |
-| `bots` | `job` (first message, required), `apps` |
-| `prompts` | `prompt` (required); `sources` optional |
+| `bots` | `creator`, `marketplace` (listing URL), `add` (Import Bot URL), `team`, `featured`, `apps` |
+| `reference` | — |
+| `prompts` | `prompt` (required), `apps`; `sources` optional |
 | `news` | `published` (required) |
 
 ## Machine-readable endpoints

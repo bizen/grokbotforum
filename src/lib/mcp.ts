@@ -8,7 +8,8 @@ import type { Lang } from './i18n';
 const SUPPORTED_VERSIONS = ['2025-11-25', '2025-06-18', '2025-03-26'];
 const SERVER_INFO = { name: 'grokbotforum', title: 'Grok Bot Forum（非公式）', version: '1.0.0' };
 
-const INSTRUCTIONS = `grokbotforum.com の非公式 Grok Bot 日本語ナレッジベースです。
+const INSTRUCTIONS = `Grok Bot Forum（grokbotforum.com）の非公式 Grok Bot 日本語ナレッジベースです。
+- 「〇〇をする Bot はある？」には collection: bots で search し、add（Grok Bot に追加するリンク）を案内してください。
 - まず search で探し、get_page で本文を読んでから答えてください。
 - 回答には該当ページの url と、docs コレクションなら official（公式ページ）を出典として添えてください。
 - 料金・上限など変わりやすい情報は quick_facts の checked 日付を確認し、古ければ公式ページの再確認を勧めてください。
@@ -36,7 +37,7 @@ const TOOLS = [
     name: 'search',
     title: 'ナレッジベースを検索',
     description:
-      'Grok Bot の日本語ドキュメント解説・ボット役割・プロンプトを検索します。結果の collection と id を get_page に渡すと本文を読めます。',
+      'Grok Bot の日本語ドキュメント解説・公式マーケットプレイスの Bot 紹介・プロンプト・まとめを検索します。結果の collection と id を get_page に渡すと本文を読めます。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -51,7 +52,7 @@ const TOOLS = [
     name: 'get_page',
     title: 'ページ本文を取得',
     description:
-      '1 ページの本文（Markdown）とメタデータを返します。collection + id、または grokbotforum.com のページ URL で指定します。ボット役割は job（最初のメッセージ）、プロンプトは prompt を含みます。',
+      '1 ページの本文（Markdown）とメタデータを返します。collection + id、または grokbotforum.com のページ URL で指定します。Bot は creator・add（追加リンク）・marketplace、プロンプトは prompt を含みます。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -208,14 +209,13 @@ async function callTool(name: string, args: Record<string, any> = {}) {
         `> ${record.summary}`,
         `- url: ${record.url}`,
         record.official ? `- 公式ページ: ${record.official}` : '',
+        record.creator ? `- 作者: ${record.creator}` : '',
+        record.add ? `- Grok Bot に追加: ${record.add}` : '',
+        record.marketplace ? `- マーケットプレイス: ${record.marketplace}` : '',
         `- 更新: ${record.updated}`,
         record.sources?.length ? `- 出典: ${record.sources.map((s: any) => s.url).join(', ')}` : '',
       ].filter(Boolean);
-      const extra = record.job
-        ? `\n\n## 最初のメッセージ\n\n${record.job}`
-        : record.prompt
-          ? `\n\n## プロンプト\n\n${record.prompt}`
-          : '';
+      const extra = record.prompt ? `\n\n## プロンプト\n\n${record.prompt}` : '';
       return textResult(`${header.join('\n')}${extra}\n\n${record.body}`, record);
     }
 

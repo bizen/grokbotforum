@@ -16,7 +16,7 @@ export async function getStaticPaths() {
     { slug: 'default', card: { label: t('ja', 'home.eyebrow'), title: t('ja', 'home.title'), summary: t('ja', 'site.description') } },
     ...COLLECTIONS.map((c) => ({
       slug: c,
-      card: { label: 'grokbotforum', title: COLLECTION_META[c].ja.label, summary: COLLECTION_META[c].ja.description },
+      card: { label: 'Grok Bot Forum', title: COLLECTION_META[c].ja.label, summary: COLLECTION_META[c].ja.description },
     })),
     ...items.map((item) => ({
       slug: `${item.collection}/${splitId(item.id).slug}`,

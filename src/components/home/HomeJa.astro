@@ -33,9 +33,10 @@ const tabs = [
 ];
 
 const docSlugs = new Set((await getItems('docs', lang)).map((item) => splitId(item.id).slug));
-const bots = (await getItems('bots', lang)).slice(0, 4);
-const firstLine = (item: Item) =>
-  item.collection === 'bots' ? item.data.job.split('\n').find((l) => l.trim()) ?? '' : '';
+// Marketplace highlights: the featured row and Grok Bot Team picks first.
+const bots = (await getItems('bots', lang))
+  .filter((item) => item.collection === 'bots' && (item.data.featured || item.data.team))
+  .slice(0, 6) as Extract<Item, { collection: 'bots' }>[];
 
 const builtAt = new Intl.DateTimeFormat('ja-JP', {
   month: 'numeric',
@@ -52,7 +53,7 @@ const updatedLabel = `${builtAt.month}/${builtAt.day}(${builtAt.weekday}) ${buil
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
-  name: 'grokbotforum',
+  name: 'Grok Bot Forum',
   url: new URL('/', Astro.site).href,
   inLanguage: lang,
   description: t(lang, 'site.description'),
@@ -127,7 +128,7 @@ const jsonLd = {
         {bots.length > 0 && (
           <section class="box">
             <h2 class="box-title">
-              {t(lang, 'portal.firstMessages')}
+              {t(lang, 'portal.marketplace')}
               <a href={localizedPath('/bots/', lang)}>{t(lang, 'common.viewAll')}</a>
             </h2>
             <ul class="messages">
@@ -135,7 +136,8 @@ const jsonLd = {
                 <li>
                   <a href={itemPath(item)}>
                     <span class="m-title">{item.data.title}</span>
-                    <span class="m-line">{firstLine(item)}</span>
+                    <span class="m-by">{item.data.creator}</span>
+                    <span class="m-line">{item.data.summary}</span>
                   </a>
                 </li>
               ))}
@@ -566,13 +568,18 @@ const jsonLd = {
     font-size: 14px;
     font-weight: 500;
   }
+  .m-by {
+    color: var(--fg-subtle);
+    font-size: 12px;
+  }
   .m-line {
+    display: -webkit-box;
     overflow: hidden;
     color: var(--fg-muted);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    font-size: 12.5px;
+    line-height: 1.5;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   /* Official docs TOC */

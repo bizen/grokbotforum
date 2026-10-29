@@ -31,8 +31,8 @@ const clients = [
 ];
 
 const tools = [
-  { name: 'search', ja: 'ドキュメント解説・ボット役割・プロンプトを検索（日本語・英語）' },
-  { name: 'get_page', ja: '1 ページの本文（Markdown）と出典。ボット役割は最初のメッセージつき' },
+  { name: 'search', ja: 'ドキュメント解説・マーケットプレイスの Bot・プロンプトを検索（日本語・英語）' },
+  { name: 'get_page', ja: '1 ページの本文（Markdown）と出典。Bot は追加リンク、プロンプトは本文つき' },
   { name: 'list_pages', ja: 'コレクションのページ一覧' },
   { name: 'official_docs_map', ja: '公式ページ ↔ 日本語解説の対応表（更新日つき）' },
   { name: 'quick_facts', ja: 'プラン・端末・上限などの早見表（出典と確認日つき）' },
@@ -47,7 +47,7 @@ const endpoints = [
 
 const t = {
     title: 'エージェント向け',
-    lede: 'grokbotforum は、人が読まなくても役に立つことを目指しています。MCP サーバーにつなげば、Grok Bot や Claude、Cursor が、このサイトの日本語解説を出典つきで使えます。',
+    lede: 'Grok Bot Forum は、人が読まなくても役に立つことを目指しています。MCP サーバーにつなげば、Grok Bot や Claude、Cursor が、このサイトの日本語解説を出典つきで使えます。',
     server: 'MCP サーバー',
     serverNote: 'Streamable HTTP・認証なし・読み取り専用。無料で使えます。',
     connect: '接続方法',
@@ -109,8 +109,8 @@ const t = {
       <h2>{t.roles}</h2>
       <p class="note">{t.rolesLede}</p>
       <ul class="roles">
-        <li><a href="/bots/gbf-navi/"><strong>{t.navi}</strong><span>{t.naviNote}</span></a></li>
-        <li><a href="/bots/gbf-docs-watcher/"><strong>{t.watcher}</strong><span>{t.watcherNote}</span></a></li>
+        <li><a href="/prompts/gbf-navi/"><strong>{t.navi}</strong><span>{t.naviNote}</span></a></li>
+        <li><a href="/prompts/gbf-docs-watcher/"><strong>{t.watcher}</strong><span>{t.watcherNote}</span></a></li>
       </ul>
     </section>
 

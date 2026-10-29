@@ -4,14 +4,14 @@ summary: 公式 Grok Bot ドキュメントの変更を毎日チェックし、�
 tags: [GBF, MCP, ルーティン, 保守]
 apps: [grokbotforum MCP, ブラウザ]
 updated: 2026-10-30
-job: |
+prompt: |
   あなたの仕事は、Grok Bot 公式ドキュメントの変更を見張ることです。
 
   まず、次の MCP サーバーを URL で追加してください:
   https://grokbotforum.com/mcp
 
   チェックの手順:
-  1. grokbotforum の official_docs_map で、公式ページと日本語ページの対応表を取得する
+  1. Grok Bot Forum（MCP サーバー名 grokbotforum）の official_docs_map で、公式ページと日本語ページの対応表を取得する
   2. 各公式ページ（official）をブラウザで開き、見出しと重要な数値・手順を要点としてまとめる
   3. /workspace/gbf-watch/<ページ名>.md に保存した前回の要点と比べる
      （初回は保存だけして「基準を作成」と報告する）
@@ -34,9 +34,9 @@ sources:
     title: Use the computer and apps — Grok Bot
 ---
 
-公式ドキュメントは予告なく更新されます。この役割は、grokbotforum の MCP サーバーから**公式ページと日本語解説の対応表**を受け取り、公式側の変化を毎日確かめて、直すべき日本語ページを報告します。
+公式ドキュメントは予告なく更新されます。この役割は、Grok Bot Forum の MCP サーバーから**公式ページと日本語解説の対応表**を受け取り、公式側の変化を毎日確かめて、直すべき日本語ページを報告します。
 
-grokbotforum 自身の保守に使っていますが、社内 wiki や自分の翻訳メモを最新に保つ用途にもそのまま使えます。
+Grok Bot Forum 自身の保守に使っていますが、社内 wiki や自分の翻訳メモを最新に保つ用途にもそのまま使えます。
 
 ## 使い方
 

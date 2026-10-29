@@ -33,11 +33,20 @@ const reference = defineCollection({
   schema: base,
 });
 
-// A Bot "role": one focused job for a Grok Bot, plus the first message that sets it up.
+// Japanese guide to a Bot published on the official Grok Bot Marketplace (x.ai/bot/marketplace).
+// Explained in our own words from the listing page — never copied verbatim.
 const bots = defineCollection({
   loader: loader('bots'),
   schema: base.extend({
-    job: z.string(),
+    creator: z.string(),
+    /** Marketplace listing page. */
+    marketplace: z.url(),
+    /** "Import Bot" link, when the listing exposes one. */
+    add: z.url().optional(),
+    /** Shown under "From Grok Bot Team" on the marketplace. */
+    team: z.boolean().default(false),
+    /** Shown in the marketplace's featured row. */
+    featured: z.boolean().default(false),
     apps: z.array(z.string()).default([]),
   }),
 });
@@ -49,6 +58,8 @@ const prompts = defineCollection({
     prompt: z.string(),
     // Prompts are original work, so sources are optional here.
     sources: z.array(source).default([]),
+    // Apps the prompt expects the Bot to have connected.
+    apps: z.array(z.string()).default([]),
   }),
 });
 

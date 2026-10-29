@@ -16,10 +16,10 @@ export const COLLECTION_META: Record<
     ja: { label: 'まとめ', description: '上限値やプラン比較など、公式ドキュメントに散らばった情報を 1 ページに。' },
   },
   bots: {
-    ja: { label: 'ボット', description: 'Grok Bot に任せられる役割と、それを始める最初のメッセージ。' },
+    ja: { label: 'ボット', description: '公式マーケットプレイスで公開されている Bot を、日本語で紹介。何をして、何をしないか。' },
   },
   prompts: {
-    ja: { label: 'プロンプト', description: 'Bot にそのまま渡せる依頼文とレシピ。' },
+    ja: { label: 'プロンプト', description: 'Bot にそのまま渡せる最初のメッセージ、依頼文、レシピ。' },
   },
   news: {
     ja: { label: 'ニュース', description: 'Grok Bot と xAI の動きを、出典つきで短く。' },

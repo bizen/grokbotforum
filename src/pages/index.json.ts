@@ -6,7 +6,7 @@ import { COLLECTIONS, COLLECTION_META, getAllItems, itemPath, splitId, toRecord 
 export async function GET({ site }: APIContext) {
   const items = await getAllItems();
   return Response.json({
-    name: 'grokbotforum',
+    name: 'Grok Bot Forum',
     description: 'Unofficial, source-cited knowledge base about Grok Bot: guides, bots, prompts, news.',
     site: site!.href,
     generated: new Date().toISOString(),
