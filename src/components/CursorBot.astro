@@ -1,14 +1,21 @@
 ---
-// Site mascot: an original round bot (not xAI's character) whose capsule eyes follow the pointer.
-// Clicking it opens search. Motion is skipped under prefers-reduced-motion.
+// Site mascot in the style of Grok Bot: a sphere with two slanted capsule eyes that slide toward
+// the pointer. Our own drawing, not xAI's artwork. Clicking it opens search.
+// Motion is skipped under prefers-reduced-motion.
 ---
 
 <button class="cursor-bot" type="button" data-search-open aria-label="検索を開く" title="何でも探す（⌘K）">
   <svg viewBox="0 0 64 64" aria-hidden="true">
-    <circle class="face" cx="32" cy="32" r="29" />
+    <defs>
+      <radialGradient id="bot-shade" cx="38%" cy="30%" r="78%">
+        <stop offset="0%" class="hi" />
+        <stop offset="100%" class="lo" />
+      </radialGradient>
+    </defs>
+    <circle class="face" cx="32" cy="32" r="30" fill="url(#bot-shade)" />
     <g class="eyes" data-bot-eyes>
-      <rect class="eye" x="20" y="21" width="8" height="18" rx="4" />
-      <rect class="eye" x="36" y="21" width="8" height="18" rx="4" />
+      <rect class="eye" x="22.75" y="25" width="6" height="14" rx="3" />
+      <rect class="eye" x="35.25" y="23" width="6" height="14" rx="3" />
     </g>
   </svg>
 </button>
@@ -18,18 +25,30 @@
   const eyes = bot?.querySelector<SVGGElement>('[data-bot-eyes]');
   const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const MAX = 14; // how far the eyes slide across the sphere, in SVG units
+  const TILT = 45; // degrees the capsules lean when looking fully sideways
+  // Resting pose: looking up and to the right, like the official artwork.
+  const REST = { x: 0.7, y: -0.75 };
+
+  const pose = (g: SVGGElement, x: number, y: number) => {
+    g.style.transform = `translate(${x * MAX}px, ${y * MAX}px)`;
+    // Capsules lean against the look direction, like eyes wrapping around a sphere.
+    g.style.setProperty('--tilt', `${-x * TILT}deg`);
+  };
+
+  if (eyes) pose(eyes, REST.x, REST.y);
+
   if (bot && eyes && !still) {
-    const MAX = 5; // how far the eyes can travel inside the face, in SVG units
-    let target = { x: 0, y: 0 };
-    let current = { x: 0, y: 0 };
+    let target = { ...REST };
+    const current = { ...REST };
     let frame = 0;
 
     const tick = () => {
-      // Ease toward the target so the eyes glide instead of snapping.
-      current.x += (target.x - current.x) * 0.25;
-      current.y += (target.y - current.y) * 0.25;
-      eyes.style.transform = `translate(${current.x}px, ${current.y}px)`;
-      frame = Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.05 ? requestAnimationFrame(tick) : 0;
+      // Ease toward the target so the gaze glides instead of snapping.
+      current.x += (target.x - current.x) * 0.2;
+      current.y += (target.y - current.y) * 0.2;
+      pose(eyes, current.x, current.y);
+      frame = Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.002 ? requestAnimationFrame(tick) : 0;
     };
 
     const look = (clientX: number, clientY: number) => {
@@ -37,15 +56,14 @@
       const dx = clientX - (rect.left + rect.width / 2);
       const dy = clientY - (rect.top + rect.height / 2);
       const distance = Math.hypot(dx, dy) || 1;
-      const reach = Math.min(distance / 120, 1); // close to the bot = smaller movement
-      // CSS transforms on SVG children are in SVG user units, matching MAX.
-      target = { x: (dx / distance) * MAX * reach, y: (dy / distance) * MAX * reach };
+      const reach = Math.min(distance / 160, 1); // close to the bot = smaller movement
+      target = { x: (dx / distance) * reach, y: (dy / distance) * reach * 0.8 };
       if (!frame) frame = requestAnimationFrame(tick);
     };
 
     addEventListener('pointermove', (e) => look(e.clientX, e.clientY), { passive: true });
     document.addEventListener('pointerleave', () => {
-      target = { x: 0, y: 0 };
+      target = { ...REST };
       if (!frame) frame = requestAnimationFrame(tick);
     });
 
@@ -61,6 +79,10 @@
 
 <style>
   .cursor-bot {
+    /* Light pages: a black sphere with white eyes. */
+    --bot-hi: #3a3a3a;
+    --bot-lo: #050505;
+    --bot-eye: #ffffff;
     position: fixed;
     left: 20px;
     bottom: 20px;
@@ -69,11 +91,24 @@
     height: 56px;
     padding: 0;
     border-radius: 50%;
-    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.22));
+    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.25));
     transition: transform var(--dur) var(--ease);
   }
+  /* Dark pages: a white, softly shaded sphere with black eyes. */
+  :global(:root[data-theme='dark']) .cursor-bot {
+    --bot-hi: #ffffff;
+    --bot-lo: #9a9a9a;
+    --bot-eye: #0a0a0a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .cursor-bot {
+      --bot-hi: #ffffff;
+      --bot-lo: #9a9a9a;
+      --bot-eye: #0a0a0a;
+    }
+  }
   .cursor-bot:hover {
-    transform: translateY(-2px) scale(1.04);
+    transform: translateY(-2px) scale(1.05);
   }
   .cursor-bot:focus-visible {
     outline-offset: 4px;
@@ -84,18 +119,24 @@
     height: 100%;
     overflow: visible;
   }
-  /* Follows the theme: a black bot on light pages, a light bot on dark pages. */
-  .face {
-    fill: var(--fg);
+  .hi {
+    stop-color: var(--bot-hi);
+  }
+  .lo {
+    stop-color: var(--bot-lo);
+  }
+  .eyes {
+    --tilt: 0deg;
   }
   .eye {
-    fill: var(--bg);
+    fill: var(--bot-eye);
     transform-box: fill-box;
     transform-origin: center;
+    transform: rotate(var(--tilt)) scaleY(1);
     transition: transform 90ms ease;
   }
   .blink .eye {
-    transform: scaleY(0.12);
+    transform: rotate(var(--tilt)) scaleY(0.12);
   }
   @media (max-width: 640px) {
     .cursor-bot {
