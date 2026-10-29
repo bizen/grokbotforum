@@ -1,0 +1,52 @@
+---
+import '../../styles/global.css';
+import EnglishGate from '../../components/EnglishGate.astro';
+
+const title = 'Grok Bot Forum — The Japanese home for Grok Bot';
+const description =
+  'Unofficial Japanese-language guide to Grok Bot: every official docs page explained in Japanese, plus Bot roles, prompts, and an MCP server.';
+const canonical = new URL('/en/', Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="en" href={canonical} />
+    <link rel="alternate" hreflang="ja" href={new URL('/', Astro.site).href} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" />
+    <script is:inline>
+      try {
+        const theme = localStorage.getItem('theme');
+        if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <main class="container">
+      <EnglishGate variant="page" />
+    </main>
+  </body>
+</html>
+
+<style>
+  main {
+    display: grid;
+    place-items: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+    padding-block: var(--s-8);
+  }
+</style>

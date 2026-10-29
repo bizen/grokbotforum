@@ -1,30 +1,14 @@
-export const LANGS = ['ja', 'en'] as const;
+// The site is Japanese-only. English visitors get a gateway page at /en/ (see src/pages/en/index.astro).
+export const LANGS = ['ja'] as const;
 export type Lang = (typeof LANGS)[number];
-export const DEFAULT_LANG: Lang = 'ja';
 
-export const LANG_LABEL: Record<Lang, string> = { ja: '日本語', en: 'English' };
-
-/** `/guides/` -> `/guides/` (ja) or `/en/guides/` (en). */
-export function localizedPath(path: string, lang: Lang): string {
-  return lang === DEFAULT_LANG ? path : `/${lang}${path}`;
+/** Kept as a seam in case another locale is added later. */
+export function localizedPath(path: string, _lang: Lang = 'ja'): string {
+  return path;
 }
 
-/** Route param for `[...locale]` pages. */
-export function localeParam(lang: Lang): string | undefined {
-  return lang === DEFAULT_LANG ? undefined : lang;
-}
-
-export function otherLang(lang: Lang): Lang {
-  return lang === 'ja' ? 'en' : 'ja';
-}
-
-export function formatDate(date: Date, lang: Lang): string {
-  return date.toLocaleDateString(lang === 'ja' ? 'ja-JP' : 'en-US', {
-    year: 'numeric',
-    month: lang === 'ja' ? 'numeric' : 'short',
-    day: 'numeric',
-    timeZone: 'UTC',
-  });
+export function formatDate(date: Date, _lang: Lang = 'ja'): string {
+  return date.toLocaleDateString('ja-JP', { year: 'numeric', month: 'numeric', day: 'numeric', timeZone: 'UTC' });
 }
 
 export function isoDate(date: Date): string {
@@ -35,7 +19,7 @@ const strings = {
   ja: {
     'site.name': 'grokbotforum',
     'site.description':
-      'Grok Bot のガイド、ボット、プロンプト、ニュースを出典つきで整理する非公式ナレッジベース。',
+      'Grok Bot の公式ドキュメント日本語解説、ボット役割、プロンプトを出典つきで整理する非公式ナレッジベース。',
     'nav.search': '検索',
     'nav.theme': 'テーマを切り替え',
     'nav.menu': 'メニュー',
@@ -52,7 +36,6 @@ const strings = {
     'common.updated': '更新',
     'common.published': '公開',
     'common.sources': '出典',
-    'common.sourceCount': '件の出典',
     'common.sourcesCount': '件の出典',
     'common.items': '件',
     'common.all': 'すべて',
@@ -62,7 +45,6 @@ const strings = {
     'common.copied': 'コピーしました',
     'common.copyMarkdown': 'Markdown をコピー',
     'common.openJson': 'JSON を開く',
-    'common.otherLang': 'English 版',
     'common.open': '開く',
     'common.prompt': 'プロンプト',
     'common.firstMessage': '最初のメッセージ',
@@ -83,58 +65,6 @@ const strings = {
       '非公式サイトです。xAI および X Corp. とは関係ありません。Grok は xAI の商標です。',
     'footer.data': 'データ',
     'footer.site': 'サイト',
-  },
-  en: {
-    'site.name': 'grokbotforum',
-    'site.description':
-      'An unofficial, source-cited knowledge base of Grok Bot guides, bots, prompts, and news.',
-    'nav.search': 'Search',
-    'nav.theme': 'Toggle theme',
-    'nav.menu': 'Menu',
-    'nav.about': 'About',
-    'home.eyebrow': 'Unofficial · Grok Bot knowledge base',
-    'home.title': 'Everything useful about Grok Bot, in one place.',
-    'home.lede':
-      'Guides, bots, prompts, and news — organized and source-cited. Readable by people and by agents.',
-    'home.searchPlaceholder': 'Search guides, bots, prompts',
-    'home.agents.title': 'Built for agents',
-    'home.agents.lede':
-      'Every page is also published as structured data, so Grok Bots and MCP servers can read it directly.',
-    'common.viewAll': 'View all',
-    'common.updated': 'Updated',
-    'common.published': 'Published',
-    'common.sources': 'Sources',
-    'common.sourceCount': 'source',
-    'common.sourcesCount': 'sources',
-    'common.items': 'items',
-    'common.all': 'All',
-    'common.empty': 'Nothing here yet.',
-    'common.onThisPage': 'On this page',
-    'common.copy': 'Copy',
-    'common.copied': 'Copied',
-    'common.copyMarkdown': 'Copy as Markdown',
-    'common.openJson': 'Open JSON',
-    'common.otherLang': '日本語版',
-    'common.open': 'Open',
-    'common.prompt': 'Prompt',
-    'common.firstMessage': 'First message',
-    'common.apps': 'Apps',
-    'docs.notice': 'Unofficial Japanese explanation. Check the official docs for authoritative details.',
-    'docs.official': 'Official page',
-    'portal.updated': 'Updated',
-    'portal.more': 'More',
-    'portal.officialToc': 'Official docs',
-    'portal.officialTocNote': '↗ links to the official page',
-    'portal.facts': 'Grok Bot at a glance',
-    'portal.checked': 'Checked',
-    'portal.firstMessages': 'First messages',
-    'portal.latest': 'New',
-    'search.noResults': 'No matching items',
-    'search.hint': '↑↓ to move, Enter to open, Esc to close',
-    'footer.unofficial':
-      'Unofficial. Not affiliated with xAI or X Corp. Grok is a trademark of xAI.',
-    'footer.data': 'Data',
-    'footer.site': 'Site',
   },
 } as const;
 

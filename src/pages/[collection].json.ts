@@ -10,7 +10,7 @@ export async function GET({ params, site }: APIContext) {
   const items = await getItems(collection);
   return Response.json({
     collection,
-    label: { ja: COLLECTION_META[collection].ja.label, en: COLLECTION_META[collection].en.label },
+    label: COLLECTION_META[collection].ja.label,
     count: items.length,
     items: items.map((item) => toRecord(item, site!, { body: true })),
   });

@@ -1,16 +1,12 @@
 import type { APIContext } from 'astro';
-import { COLLECTION_META, getAllItems, itemDate, itemPath, splitId } from '../../lib/content';
-import { LANGS, localeParam, localizedPath, t, type Lang } from '../../lib/i18n';
-
-export function getStaticPaths() {
-  return LANGS.map((lang) => ({ params: { locale: localeParam(lang) }, props: { lang } }));
-}
+import { COLLECTION_META, getAllItems, itemDate, itemPath } from '../lib/content';
+import { localizedPath, t } from '../lib/i18n';
 
 const escape = (s: string) =>
   s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-export async function GET({ props, site }: APIContext) {
-  const lang = props.lang as Lang;
+export async function GET({ site }: APIContext) {
+  const lang = 'ja';
   const items = (await getAllItems(lang))
     .sort((a, b) => itemDate(b).getTime() - itemDate(a).getTime())
     .slice(0, 50);
@@ -30,7 +26,7 @@ ${items
       <title>${escape(item.data.title)}</title>
       <link>${url}</link>
       <guid>${url}</guid>
-      <category>${escape(COLLECTION_META[item.collection][splitId(item.id).lang].label)}</category>
+      <category>${escape(COLLECTION_META[item.collection][lang].label)}</category>
       <pubDate>${itemDate(item).toUTCString()}</pubDate>
       <description>${escape(item.data.summary)}</description>
     </item>`;

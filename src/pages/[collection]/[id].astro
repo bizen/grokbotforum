@@ -1,24 +1,22 @@
 ---
 import { render } from 'astro:content';
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import CopyButton from '../../../components/CopyButton.astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CopyButton from '../../components/CopyButton.astro';
 import {
   COLLECTION_META,
   getAllItems,
-  getTranslation,
   itemDate,
   itemJsonPath,
   itemPath,
   splitId,
   type Item,
-} from '../../../lib/content';
-import { formatDate, isoDate, localeParam, localizedPath, t, LANG_LABEL } from '../../../lib/i18n';
+} from '../../lib/content';
+import { formatDate, isoDate, localizedPath, t } from '../../lib/i18n';
 
 export async function getStaticPaths() {
   const items = await getAllItems();
   return items.map((item) => {
-    const { lang, slug } = splitId(item.id);
-    return { params: { locale: localeParam(lang), collection: item.collection, id: slug }, props: { item } };
+    return { params: { collection: item.collection, id: splitId(item.id).slug }, props: { item } };
   });
 }
 
@@ -28,8 +26,6 @@ const { data } = item;
 const meta = COLLECTION_META[item.collection][lang];
 const { Content, headings } = await render(item);
 const toc = headings.filter((h) => h.depth === 2);
-const translation = await getTranslation(item);
-const alternatePath = translation ? itemPath(translation) : null;
 const jsonPath = itemJsonPath(item);
 const date = itemDate(item);
 const url = new URL(itemPath(item), Astro.site).href;
@@ -61,7 +57,6 @@ const jsonLd = {
   lang={lang}
   title={data.title}
   description={data.summary}
-  alternatePath={alternatePath}
   jsonPath={jsonPath}
   ogType="article"
   jsonLd={jsonLd}
@@ -80,7 +75,6 @@ const jsonLd = {
           {data.sources.length > 0 && (
             <a href="#sources">{data.sources.length} {data.sources.length === 1 ? t(lang, 'common.sourceCount') : t(lang, 'common.sourcesCount')}</a>
           )}
-          {translation && <a href={alternatePath} hreflang={splitId(translation.id).lang}>{t(lang, 'common.otherLang')}</a>}
         </p>
         {data.tags.length > 0 && (
           <div class="tags">{data.tags.map((tag) => <span class="chip">{tag}</span>)}</div>
@@ -144,7 +138,6 @@ const jsonLd = {
           <CopyButton lang={lang} fetchJson={jsonPath} label={t(lang, 'common.copyMarkdown')} />
           <a class="btn btn-secondary btn-sm" href={jsonPath}>{t(lang, 'common.openJson')}</a>
         </div>
-        <p class="lang">{LANG_LABEL[lang]}</p>
       </div>
     </aside>
   </div>
@@ -307,9 +300,6 @@ const jsonLd = {
     gap: var(--s-2);
     justify-items: start;
   }
-  .lang {
-    color: var(--fg-subtle);
-  }
 
   @media (max-width: 1080px) {
     .layout {
@@ -319,8 +309,7 @@ const jsonLd = {
     .rail {
       position: static;
     }
-    .rail nav,
-    .rail .lang {
+    .rail nav {
       display: none;
     }
     .actions {

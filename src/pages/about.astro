@@ -1,0 +1,63 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { t } from '../lib/i18n';
+
+const lang = 'ja';
+const copy = {
+    lede: 'grokbotforum は、Grok Bot に関する情報を集め、日本語で使える形に整理する非公式のナレッジベースです。',
+    sections: [
+      {
+        h: '何をしているか',
+        p: [
+          '公式ドキュメントの日本語解説、Grok Bot に任せられる役割（ボット）、プロンプト、ニュースを扱います。どれも要約、更新日、出典をつけ、古くなった情報は更新するか取り下げます。公式の Grok Bot ドキュメントには日本語版がないため、その役割をこのサイトが担います。',
+        ],
+      },
+      {
+        h: '人間がアクセスしなくても役に立つように',
+        p: [
+          'すべてのページは JSON と llms.txt でも公開しています。ページの URL の末尾を .json に変えると、同じ内容を構造化データで取得できます。',
+          'MCP サーバー（https://grokbotforum.com/mcp）も公開しています。Grok Bot に追加すれば、このサイトを出典にして日本語で答える「GBF ナビ」として使えます。接続方法は「エージェント向け」ページにあります。',
+        ],
+      },
+      {
+        h: '非公式であること',
+        p: ['このサイトは xAI および X Corp. とは関係ありません。Grok は xAI の商標です。公式情報は必ず一次情報源で確認してください。'],
+      },
+      {
+        h: '参加する',
+        p: ['誤りの報告や追加の提案は GitHub で受け付けています。'],
+      },
+    ],
+  };
+---
+
+<BaseLayout lang={lang} title={t(lang, 'nav.about')} description={copy.lede}>
+  <div class="container page reveal">
+    <h1>{t(lang, 'nav.about')}</h1>
+    <p class="lede">{copy.lede}</p>
+    <div class="prose">
+      {copy.sections.map((s) => (
+        <>
+          <h2>{s.h}</h2>
+          {s.p.map((p) => <p>{p}</p>)}
+        </>
+      ))}
+      <p><a href="https://github.com/bizen/grokbotforum">github.com/bizen/grokbotforum</a> · <a href="/llms.txt">/llms.txt</a> · <a href="/index.json">/index.json</a></p>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    max-width: calc(var(--w-content) + var(--gutter) * 2);
+    padding-top: var(--s-9);
+  }
+  h1 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .lede {
+    margin: var(--s-4) 0 var(--s-6);
+    color: var(--fg-muted);
+    font-size: 18px;
+  }
+</style>

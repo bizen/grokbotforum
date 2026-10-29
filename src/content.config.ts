@@ -2,10 +2,8 @@ import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
-// Files live at src/content/<collection>/<lang>/<slug>.md.
-// The same slug in ja/ and en/ is treated as a translation pair.
-const loader = (name: string) =>
-  glob({ pattern: '{ja,en}/**/*.md', base: `./src/content/${name}` });
+// Files live at src/content/<collection>/ja/<slug>.md (the site is Japanese-only).
+const loader = (name: string) => glob({ pattern: 'ja/**/*.md', base: `./src/content/${name}` });
 
 const source = z.object({
   url: z.url(),
@@ -23,16 +21,9 @@ const base = z.object({
 // Japanese explanations of the official Grok Bot docs, one item per official page.
 // Written in our own words — never a verbatim translation (see SKILL.md §7).
 const docs = defineCollection({
-  loader: glob({ pattern: 'ja/**/*.md', base: './src/content/docs' }),
+  loader: loader('docs'),
   schema: base.extend({
     official: z.url(),
-  }),
-});
-
-const guides = defineCollection({
-  loader: loader('guides'),
-  schema: base.extend({
-    level: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
   }),
 });
 
@@ -62,4 +53,4 @@ const news = defineCollection({
   }),
 });
 
-export const collections = { docs, guides, bots, prompts, news };
+export const collections = { docs, bots, prompts, news };

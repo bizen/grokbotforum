@@ -6,7 +6,7 @@ description: Design system and UI rules for grokbotforum.com. Use whenever creat
 # grokbotforum design system
 
 grokbotforum.com is an **unofficial, information-first knowledge base about Grok bots**
-(guides, bots, prompts/recipes, news). It is not a fan site. Every page should feel like
+(Japanese explanations of the official docs, Bot roles, prompts, news). It is not a fan site. Every page should feel like
 a calm, precise reference tool — in the lineage of grok.com, chatgpt.com, and
 platform docs from AI labs — not a marketing landing page.
 
@@ -26,8 +26,10 @@ source as the pages.
    every content item. Stale info is worse than no info.
 5. **Machine-readable by default.** Anything shown on a page must also exist as
    structured data (see §7).
-6. **Bilingual parity.** Japanese is the default locale; English is first-class.
-   Design must look intentional in both.
+6. **Japanese only.** The site serves Japanese readers; English readers already have the
+   official docs. `/en/` is a gateway (`EnglishGate.astro`) that offers the Japanese site or
+   docs.x.ai, and non-Japanese browsers see the same choice once as a dialog. Never claim
+   "No.1" without dated, verifiable grounds (景品表示法).
 
 ### Never
 - Gradient text, glassmorphism cards, glowing borders, neon "AI" purple/blue gradients.
@@ -161,7 +163,7 @@ Dark mode is a peer, not an afterthought — Grok's own UI is dark-first. Suppor
 - **Code / prompt block**: `--bg-subtle`, `--r-md`, mono 14px, header bar with label
   and a "Copy" button. Prompts are the product — make copying effortless.
 - **Callout**: left 2px border in meaning color, no fill or a very faint one.
-- **Meta line**: `updated 2026-10-30 · 3 sources · 日本語 / English` in 14px `--fg-muted`.
+- **Meta line**: `更新 2026/10/30 · 3 件の出典` in 14px `--fg-muted`.
 - **Focus**: `outline: 2px solid var(--accent); outline-offset: 2px` on every
   interactive element. Touch targets ≥ 44px, but don't force `min-height` on inline
   text links.
@@ -176,7 +178,7 @@ Dark mode is a peer, not an afterthought — Grok's own UI is dark-first. Suppor
 
 Content lives in Astro content collections (`src/content/<collection>/<lang>/<slug>.md`,
 schemas in `src/content.config.ts`). Language comes from the folder; the same slug in
-`ja/` and `en/` is a translation pair. Every item has:
+`ja/` is the only locale. Every item has:
 
 ```yaml
 title: ...
@@ -188,7 +190,7 @@ sources:                   # required (optional for prompts), real URLs
     title: ...
 ```
 
-Per collection: `guides` add `level`; `bots` are **roles** for a Grok Bot — `job`
+Per collection: `bots` are **roles** for a Grok Bot — `job`
 (the first message that sets the Bot up) and `apps`; `prompts` add `prompt` (the text
 to copy); `news` add `published`. The slug is the stable id — never rename a
 published file.
@@ -205,15 +207,15 @@ short and clearly marked, and always link the original. A full translation needs
 permission from xAI (legal@x.ai). The official table of contents lives in
 `src/data/official-docs.ts`; pages without an explanation link out with ↗.
 
-**Home pages are split by locale**: Japanese (`HomeJa.astro`) is a dense, Yahoo! JAPAN–style
+**Home** (`HomeJa.astro`) is a dense, Yahoo! JAPAN–style
 portal (search tabs, timestamped headlines with NEW badges, official-docs rail, quick-facts
-box); English (`HomeEn.astro`) stays minimal and search-first. Borrow Yahoo's information
+box). Borrow Yahoo's information
 density, never its colors, icons, or ads. Quick facts live in `src/data/quick-facts.ts` with
 a source per fact and a `checked` date.
 
 For every collection, also emit:
 - `/<collection>.json` (all languages) and `<item URL without trailing slash>.json`
-  (e.g. `/en/bots/chief-of-staff.json`) — the same fields plus `body` as Markdown.
+  (e.g. `/bots/chief-of-staff.json`) — the same fields plus `body` as Markdown.
 - `/index.json` — every item's metadata; also powers on-site search.
 - `/llms.txt` (index of sections and items) and `/llms-full.txt` (all content).
 - schema.org JSON-LD on detail pages (`Article`, `HowTo`, `SoftwareApplication` as fits).

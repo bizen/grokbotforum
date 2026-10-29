@@ -1,0 +1,89 @@
+---
+// English entry point for a Japanese-only site: explain what this is, then let the visitor
+// enter anyway or go to the official docs. Rendered as the /en/ page and as a one-time
+// dialog for browsers with no Japanese in their language list.
+interface Props {
+  variant: 'page' | 'dialog';
+}
+
+const { variant } = Astro.props;
+const OFFICIAL = 'https://docs.x.ai/grok-bot/overview';
+---
+
+<div class:list={['gate', variant]} lang="en">
+  <span class="gate-logo" role="img" aria-label="Grok Bot Forum"></span>
+  <p class="gate-eyebrow">Unofficial · 日本語</p>
+  <h1 class="gate-title">The Japanese home for Grok Bot.</h1>
+  <p class="gate-lede">
+    grokbotforum is an unofficial, Japanese-language guide to SpaceXSI’s Grok Bot — every page of the
+    official docs explained in Japanese, plus ready-to-paste Bot roles and prompts. The site is in
+    Japanese only.
+  </p>
+  <div class="gate-actions">
+    {variant === 'dialog' ? (
+      <button type="button" class="btn btn-primary" data-gate-enter>Enter the Japanese site</button>
+    ) : (
+      <a class="btn btn-primary" href="/">Enter the Japanese site</a>
+    )}
+    <a class="btn btn-secondary" href={OFFICIAL} rel="noopener">
+      Official docs in English <span aria-hidden="true">↗</span>
+    </a>
+  </div>
+  <p class="gate-note">
+    Building an agent? Connect the MCP server at <a href="/agents/"><code>grokbotforum.com/mcp</code></a>.
+  </p>
+</div>
+
+<style>
+  .gate {
+    display: grid;
+    justify-items: center;
+    gap: var(--s-4);
+    text-align: center;
+  }
+  .gate-logo {
+    width: min(320px, 70vw);
+    aspect-ratio: 1000 / 318;
+    margin-bottom: var(--s-2);
+    background: var(--fg);
+    -webkit-mask: url('/logo.png') center / contain no-repeat;
+    mask: url('/logo.png') center / contain no-repeat;
+  }
+  .gate-eyebrow {
+    color: var(--fg-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  .gate-title {
+    max-width: 14em;
+    font-size: clamp(28px, 5vw, 44px);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  .gate-lede {
+    max-width: 34em;
+    color: var(--fg-muted);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .gate-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-2);
+    margin-top: var(--s-2);
+  }
+  .gate-note {
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+  .gate-note a {
+    color: inherit;
+  }
+  .dialog .gate-logo {
+    width: min(240px, 60vw);
+  }
+  .dialog .gate-title {
+    font-size: clamp(24px, 4vw, 32px);
+  }
+</style>

@@ -30,20 +30,18 @@ class RpcError extends Error {
 }
 
 const collectionEnum = { type: 'string', enum: [...COLLECTIONS] };
-const langEnum = { type: 'string', enum: ['ja', 'en'], default: 'ja' };
 
 const TOOLS = [
   {
     name: 'search',
     title: 'ナレッジベースを検索',
     description:
-      'Grok Bot の日本語ドキュメント解説・ボット役割・プロンプト・ガイドを検索します。結果の collection と id を get_page に渡すと本文を読めます。',
+      'Grok Bot の日本語ドキュメント解説・ボット役割・プロンプトを検索します。結果の collection と id を get_page に渡すと本文を読めます。',
     inputSchema: {
       type: 'object',
       properties: {
         query: { type: 'string', description: '検索語（日本語・英語どちらでも可。例: ルーティン 上限）' },
         collection: { ...collectionEnum, description: '絞り込むコレクション（省略可）' },
-        lang: langEnum,
         limit: { type: 'integer', minimum: 1, maximum: 20, default: 5 },
       },
       required: ['query'],
@@ -60,7 +58,6 @@ const TOOLS = [
         collection: collectionEnum,
         id: { type: 'string', description: 'ページの id（例: tag-on-x）' },
         url: { type: 'string', description: 'ページ URL（例: https://grokbotforum.com/docs/tag-on-x/）' },
-        lang: langEnum,
       },
     },
   },
@@ -70,7 +67,7 @@ const TOOLS = [
     description: 'コレクション内のページ一覧（id・タイトル・要約・更新日）を返します。',
     inputSchema: {
       type: 'object',
-      properties: { collection: collectionEnum, lang: langEnum },
+      properties: { collection: collectionEnum },
       required: ['collection'],
     },
   },
@@ -164,15 +161,14 @@ function itemFromUrl(items: Item[], raw: string): Item | undefined {
   } catch {
     return undefined;
   }
-  const m = path.match(/^\/(?:(en)\/)?([a-z]+)\/([^/]+?)(?:\.json)?\/?$/);
+  const m = path.match(/^\/([a-z]+)\/([^/]+?)(?:\.json)?\/?$/);
   if (!m) return undefined;
-  const [, en, collection, slug] = m;
-  const lang = en ? 'en' : 'ja';
-  return items.find((i) => i.collection === collection && i.id === `${lang}/${slug}`);
+  const [, collection, slug] = m;
+  return items.find((i) => i.collection === collection && splitId(i.id).slug === slug);
 }
 
 async function callTool(name: string, args: Record<string, any> = {}) {
-  const lang: Lang = args.lang === 'en' ? 'en' : 'ja';
+  const lang: Lang = 'ja';
 
   switch (name) {
     case 'search': {
@@ -202,7 +198,7 @@ async function callTool(name: string, args: Record<string, any> = {}) {
       let item: Item | undefined;
       if (args.url) item = itemFromUrl(all, String(args.url));
       else if (args.collection && args.id)
-        item = all.find((i) => i.collection === args.collection && i.id === `${lang}/${args.id}`);
+        item = all.find((i) => i.collection === args.collection && splitId(i.id).slug === args.id);
       else throw new RpcError(-32602, 'collection + id, or url is required');
       if (!item) return { ...textResult('ページが見つかりません。search で id を確認してください。'), isError: true };
 
