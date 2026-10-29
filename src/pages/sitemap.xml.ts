@@ -7,7 +7,7 @@ export async function GET({ site }: APIContext) {
   const pages: { loc: string; lastmod?: string; alternates: Record<string, string> }[] = [];
 
   const indexPages = [
-    ...['/', '/about/'].map((path) => ({ path, langs: LANGS })),
+    ...['/', '/about/', '/agents/'].map((path) => ({ path, langs: LANGS })),
     ...COLLECTIONS.map((c) => ({ path: `/${c}/`, langs: LANGS.filter((l) => hasLang(c, l)) })),
   ];
   for (const { path, langs } of indexPages) {

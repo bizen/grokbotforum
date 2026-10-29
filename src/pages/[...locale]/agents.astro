@@ -1,0 +1,280 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CopyButton from '../../components/CopyButton.astro';
+import { LANGS, localeParam, localizedPath, otherLang, type Lang } from '../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.map((lang) => ({ params: { locale: localeParam(lang) }, props: { lang } }));
+}
+
+const { lang } = Astro.props as { lang: Lang };
+const MCP_URL = 'https://grokbotforum.com/mcp';
+
+const clients = [
+  {
+    name: 'Grok Bot',
+    ja: 'Bot に URL を伝えて追加してもらいます。カタログにない MCP サーバーも URL で追加できます。',
+    en: 'Ask your Bot to add the server by URL. Grok Bot can add MCP servers that are not in the catalog.',
+    code: { ja: `次の MCP サーバーを追加して: ${MCP_URL}`, en: `Add this MCP server: ${MCP_URL}` },
+  },
+  {
+    name: 'Claude Code',
+    ja: 'ターミナルで次を実行します。',
+    en: 'Run this in your terminal.',
+    code: { ja: `claude mcp add --transport http grokbotforum ${MCP_URL}`, en: `claude mcp add --transport http grokbotforum ${MCP_URL}` },
+  },
+  {
+    name: 'Cursor',
+    ja: '.cursor/mcp.json（またはグローバルの ~/.cursor/mcp.json）に追加します。',
+    en: 'Add to .cursor/mcp.json (or the global ~/.cursor/mcp.json).',
+    code: {
+      ja: JSON.stringify({ mcpServers: { grokbotforum: { url: MCP_URL } } }, null, 2),
+      en: JSON.stringify({ mcpServers: { grokbotforum: { url: MCP_URL } } }, null, 2),
+    },
+  },
+  {
+    name: 'Claude（claude.ai）',
+    ja: '設定のコネクタから「カスタムコネクタを追加」を選び、URL を入力します。',
+    en: 'In Settings → Connectors, choose “Add custom connector” and paste the URL.',
+    code: { ja: MCP_URL, en: MCP_URL },
+  },
+];
+
+const tools = [
+  { name: 'search', ja: 'ドキュメント解説・ボット役割・プロンプトを検索（日本語・英語）', en: 'Search docs explanations, bot roles, and prompts' },
+  { name: 'get_page', ja: '1 ページの本文（Markdown）と出典。ボット役割は最初のメッセージつき', en: 'Full Markdown of one page with sources; bot roles include the first message' },
+  { name: 'list_pages', ja: 'コレクションのページ一覧', en: 'List pages in a collection' },
+  { name: 'official_docs_map', ja: '公式ページ ↔ 日本語解説の対応表（更新日つき）', en: 'Official page ↔ Japanese explanation map with dates' },
+  { name: 'quick_facts', ja: 'プラン・端末・上限などの早見表（出典と確認日つき）', en: 'Plans, platforms, and limits with sources and check date' },
+];
+
+const endpoints = [
+  { path: '/llms.txt', ja: 'LLM 向けのサイト目次', en: 'Site index for LLMs' },
+  { path: '/llms-full.txt', ja: '全コンテンツを 1 ファイルで', en: 'All content in one file' },
+  { path: '/index.json', ja: '全ページのメタデータと早見表', en: 'Metadata for every page, plus quick facts' },
+  { path: '/docs.json', ja: 'コレクションごとの本文つき JSON（docs / bots / prompts など）', en: 'Per-collection JSON with bodies (docs / bots / prompts …)' },
+];
+
+const t = {
+  ja: {
+    title: 'エージェント向け',
+    lede: 'grokbotforum は、人が読まなくても役に立つことを目指しています。MCP サーバーにつなげば、Grok Bot や Claude、Cursor が、このサイトの日本語解説を出典つきで使えます。',
+    server: 'MCP サーバー',
+    serverNote: 'Streamable HTTP・認証なし・読み取り専用。無料で使えます。',
+    connect: '接続方法',
+    tools: 'ツール',
+    roles: 'すぐ使える GBF Bot',
+    rolesLede: 'Grok Bot に貼るだけで使える役割です。',
+    navi: 'GBF ナビ',
+    naviNote: 'Grok Bot の質問に、このサイトを出典にして日本語で答える',
+    watcher: 'GBF 更新ウォッチャー',
+    watcherNote: '公式ドキュメントの変更を毎日チェックして報告する',
+    other: 'その他のエンドポイント',
+    otherNote: 'ページの URL の末尾の / を .json に変えると、そのページを JSON で取得できます。',
+  },
+  en: {
+    title: 'For agents',
+    lede: 'grokbotforum aims to be useful without a human in the loop. Connect the MCP server and Grok Bot, Claude, or Cursor can use this site’s content with sources. Content is mostly in Japanese.',
+    server: 'MCP server',
+    serverNote: 'Streamable HTTP, no auth, read-only. Free to use.',
+    connect: 'Connect',
+    tools: 'Tools',
+    roles: 'Ready-made GBF Bots',
+    rolesLede: 'Roles you can paste into Grok Bot (Japanese).',
+    navi: 'GBF Navi',
+    naviNote: 'Answers Grok Bot questions in Japanese, citing this site',
+    watcher: 'GBF Docs Watcher',
+    watcherNote: 'Checks the official docs daily and reports changes',
+    other: 'Other endpoints',
+    otherNote: 'Replace the trailing slash of any page URL with .json to get that page as JSON.',
+  },
+}[lang];
+---
+
+<BaseLayout lang={lang} title={t.title} description={t.lede} alternatePath={localizedPath('/agents/', otherLang(lang))}>
+  <div class="container page reveal">
+    <h1>{t.title}</h1>
+    <p class="lede">{t.lede}</p>
+
+    <section>
+      <h2>{t.server}</h2>
+      <div class="url">
+        <code>{MCP_URL}</code>
+        <CopyButton lang={lang} text={MCP_URL} />
+      </div>
+      <p class="note">{t.serverNote}</p>
+    </section>
+
+    <section>
+      <h2>{t.connect}</h2>
+      <div class="clients">
+        {clients.map((c) => (
+          <figure>
+            <figcaption>
+              <span><strong>{c.name}</strong> — {c[lang]}</span>
+              <CopyButton lang={lang} text={c.code[lang]} />
+            </figcaption>
+            <pre><code>{c.code[lang]}</code></pre>
+          </figure>
+        ))}
+      </div>
+    </section>
+
+    <section>
+      <h2>{t.tools}</h2>
+      <dl class="tools">
+        {tools.map((tool) => (
+          <div>
+            <dt><code>{tool.name}</code></dt>
+            <dd>{tool[lang]}</dd>
+          </div>
+        ))}
+      </dl>
+    </section>
+
+    <section>
+      <h2>{t.roles}</h2>
+      <p class="note">{t.rolesLede}</p>
+      <ul class="roles">
+        <li><a href="/bots/gbf-navi/"><strong>{t.navi}</strong><span>{t.naviNote}</span></a></li>
+        <li><a href="/bots/gbf-docs-watcher/"><strong>{t.watcher}</strong><span>{t.watcherNote}</span></a></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>{t.other}</h2>
+      <dl class="tools">
+        {endpoints.map((e) => (
+          <div>
+            <dt><a href={e.path}><code>{e.path}</code></a></dt>
+            <dd>{e[lang]}</dd>
+          </div>
+        ))}
+      </dl>
+      <p class="note">{t.otherNote}</p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    max-width: calc(var(--w-content) + var(--gutter) * 2);
+    padding-top: var(--s-8);
+  }
+  h1 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .lede {
+    margin-top: var(--s-4);
+    color: var(--fg-muted);
+    font-size: 17px;
+  }
+  section {
+    margin-top: var(--s-8);
+  }
+  h2 {
+    margin-bottom: var(--s-4);
+    font-size: 20px;
+  }
+  .note {
+    margin-top: var(--s-2);
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  section > .note:first-of-type:not(:last-child) {
+    margin: 0 0 var(--s-4);
+  }
+  .url {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: var(--bg-subtle);
+  }
+  .url code {
+    overflow: hidden;
+    font-size: 15px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .clients {
+    display: grid;
+    gap: var(--s-4);
+  }
+  figure {
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
+  }
+  figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+    padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+    border-bottom: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  figcaption strong {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  pre {
+    padding: var(--s-4);
+    overflow-x: auto;
+    background: var(--bg-subtle);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .tools div {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: var(--s-4);
+    padding: var(--s-3) 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .tools dd {
+    color: var(--fg-muted);
+  }
+  .tools a {
+    text-decoration: none;
+  }
+  .roles {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-3);
+    padding: 0;
+    list-style: none;
+  }
+  .roles a {
+    display: grid;
+    gap: var(--s-1);
+    height: 100%;
+    padding: var(--s-4);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease);
+  }
+  .roles a:hover {
+    background: var(--bg-hover);
+  }
+  .roles span {
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  @media (max-width: 640px) {
+    .tools div {
+      grid-template-columns: 1fr;
+      gap: var(--s-1);
+    }
+    .roles {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -149,6 +149,7 @@ const nav = (await getNavCollections(lang)).map((c) => ({
           <div>
             <h2>{t(lang, 'footer.data')}</h2>
             <ul>
+              <li><a href={localizedPath('/agents/', lang)}>MCP</a></li>
               <li><a href="/llms.txt">llms.txt</a></li>
               <li><a href="/index.json">index.json</a></li>
               <li><a href={localizedPath('/feed.xml', lang)}>RSS</a></li>

@@ -178,13 +178,16 @@ const jsonLd = {
         </section>
 
         <section class="box">
-          <h2 class="box-title">{t(lang, 'home.agents.title')}</h2>
+          <h2 class="box-title">
+            {t(lang, 'home.agents.title')}
+            <a href={localizedPath('/agents/', lang)}>{t(lang, 'portal.more')}</a>
+          </h2>
           <p class="agents-lede">{t(lang, 'home.agents.lede')}</p>
           <ul class="endpoints">
+            <li><a href={localizedPath('/agents/', lang)}><code>/mcp</code></a><span>MCP サーバー</span></li>
             <li><a href="/llms.txt"><code>/llms.txt</code></a></li>
             <li><a href="/llms-full.txt"><code>/llms-full.txt</code></a></li>
             <li><a href="/index.json"><code>/index.json</code></a></li>
-            <li><code>MCP</code><span>{t(lang, 'home.agents.soon')}</span></li>
           </ul>
         </section>
       </aside>

@@ -8,7 +8,7 @@ Not affiliated with xAI or X Corp.
 
 ## Stack
 
-- [Astro](https://astro.build) (static output), deployed on Vercel
+- [Astro](https://astro.build), deployed on Vercel with `@astrojs/vercel`: static pages, plus one on-demand function for `/mcp`
 - No UI framework; plain CSS with design tokens in `src/styles/global.css`
 - Design rules: `.claude/skills/grokbotforum-design/SKILL.md`
 
@@ -71,6 +71,7 @@ Extra fields by collection (see `src/content.config.ts`):
 
 | URL | Contents |
 |---|---|
+| `/mcp` | Remote MCP server (stateless Streamable HTTP, read-only). Tools: `search`, `get_page`, `list_pages`, `official_docs_map`, `quick_facts`. Implemented in `src/lib/mcp.ts`; setup guide at `/agents/` |
 | `/llms.txt` | Index for LLMs ([llmstxt.org](https://llmstxt.org)) |
 | `/llms-full.txt` | All content as plain text |
 | `/index.json` | Metadata for every item |

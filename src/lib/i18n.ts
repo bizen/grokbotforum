@@ -48,7 +48,6 @@ const strings = {
     'home.agents.title': 'エージェントのために',
     'home.agents.lede':
       'すべてのコンテンツは構造化データとしても公開しています。Grok Bot や MCP サーバーから、そのまま読めます。',
-    'home.agents.soon': '準備中',
     'common.viewAll': 'すべて見る',
     'common.updated': '更新',
     'common.published': '公開',
@@ -101,7 +100,6 @@ const strings = {
     'home.agents.title': 'Built for agents',
     'home.agents.lede':
       'Every page is also published as structured data, so Grok Bots and MCP servers can read it directly.',
-    'home.agents.soon': 'Coming soon',
     'common.viewAll': 'View all',
     'common.updated': 'Updated',
     'common.published': 'Published',

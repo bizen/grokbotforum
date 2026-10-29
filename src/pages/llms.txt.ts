@@ -18,6 +18,7 @@ export async function GET({ site }: APIContext) {
 
 Every item is available as JSON: replace the trailing slash of an item URL with \`.json\`. Each record has id, collection, lang, title, summary, tags, updated, sources, url, and body (Markdown). English URLs are prefixed with /en/.
 
+- MCP server (Streamable HTTP, no auth, read-only; tools: search, get_page, list_pages, official_docs_map, quick_facts): ${abs('/mcp')} — setup: ${abs('/agents/')}
 - Site index (all items, metadata only): ${abs('/index.json')}
 - All content as plain text: ${abs('/llms-full.txt')}
 
