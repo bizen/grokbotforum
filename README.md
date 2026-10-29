@@ -31,7 +31,7 @@ src/
 ├── layouts/BaseLayout.astro
 └── pages/
     ├── [collection]/        # Collection index and item pages
-    ├── en/index.astro       # English gateway (old /en/* URLs redirect here, see vercel.json)
+    ├── en/index.astro       # English gateway (old /en/* URLs redirect here via en/[...path].ts)
     ├── [collection].json.ts # /docs.json, /bots.json, ...
     ├── index.json.ts        # /index.json — metadata for every item
     ├── llms.txt.ts          # /llms.txt

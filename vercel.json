@@ -1,12 +1,4 @@
 {
   "buildCommand": "npm run build",
-  "framework": "astro",
-  "redirects": [
-    { "source": "/en/:path+", "destination": "/en/", "permanent": true },
-    { "source": "/guides/getting-started", "destination": "/docs/get-started/", "permanent": true },
-    { "source": "/guides/tag-bot-on-x", "destination": "/docs/tag-on-x/", "permanent": true },
-    { "source": "/guides/skills-and-routines", "destination": "/docs/skills-routines-and-automations/", "permanent": true },
-    { "source": "/guides/:path*", "destination": "/docs/", "permanent": true },
-    { "source": "/guides.json", "destination": "/docs.json", "permanent": true }
-  ]
+  "framework": "astro"
 }
