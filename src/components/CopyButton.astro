@@ -1,0 +1,46 @@
+---
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+  /** Text to copy. Omit and set `fetchJson` to copy the `body` of a JSON endpoint instead. */
+  text?: string;
+  fetchJson?: string;
+  label?: string;
+  class?: string;
+}
+
+const { lang, text, fetchJson, label = t(lang, 'common.copy'), class: className } = Astro.props;
+---
+
+<button
+  type="button"
+  class:list={['btn btn-secondary btn-sm', className]}
+  data-copy={text}
+  data-copy-json={fetchJson}
+  data-copied-label={t(lang, 'common.copied')}
+>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+    <rect x="8" y="8" width="12" height="12" rx="2.5" /><path d="M16 8V6.5A2.5 2.5 0 0 0 13.5 4h-7A2.5 2.5 0 0 0 4 6.5v7A2.5 2.5 0 0 0 6.5 16H8" />
+  </svg>
+  <span data-copy-label>{label}</span>
+</button>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy], [data-copy-json]').forEach((button) => {
+    button.addEventListener('click', async () => {
+      let text = button.dataset.copy;
+      if (text === undefined && button.dataset.copyJson) {
+        const res = await fetch(button.dataset.copyJson);
+        text = (await res.json()).body;
+      }
+      if (text === undefined) return;
+      await navigator.clipboard.writeText(text);
+      const label = button.querySelector('[data-copy-label]');
+      if (!label) return;
+      const original = label.textContent;
+      label.textContent = button.dataset.copiedLabel ?? '';
+      setTimeout(() => (label.textContent = original), 1500);
+    });
+  });
+</script>

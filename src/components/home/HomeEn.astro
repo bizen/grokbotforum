@@ -1,0 +1,238 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ItemList from '../ItemList.astro';
+import SectionHeader from '../SectionHeader.astro';
+import { COLLECTION_META, collectionsFor, getItems } from '../../lib/content';
+import { localizedPath, otherLang, t, type Lang } from '../../lib/i18n';
+
+// Minimal, search-first home. Used for English; Japanese gets the denser HomeJa.
+const { lang } = Astro.props as { lang: Lang };
+
+const sections = await Promise.all(
+  collectionsFor(lang).map(async (collection) => ({
+    collection,
+    meta: COLLECTION_META[collection][lang],
+    items: (await getItems(collection, lang)).slice(0, 4),
+  })),
+);
+
+const suggestions = lang === 'ja'
+  ? ['はじめる', '@bot', 'スキル', 'ルーティン']
+  : ['Getting started', '@bot', 'Skills', 'Routines'];
+
+const endpoints = [
+  { path: '/llms.txt', ja: 'LLM 向けのサイト目次', en: 'Site index for LLMs' },
+  { path: '/llms-full.txt', ja: '全コンテンツを 1 ファイルで', en: 'All content in one file' },
+  { path: '/index.json', ja: '全項目のメタデータ', en: 'Metadata for every item' },
+  { path: '/guides.json', ja: 'コレクションごとの本文つき JSON', en: 'Per-collection JSON with bodies' },
+];
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'grokbotforum',
+  url: new URL(localizedPath('/', lang), Astro.site).href,
+  inLanguage: lang,
+  description: t(lang, 'site.description'),
+};
+---
+
+<BaseLayout lang={lang} alternatePath={localizedPath('/', otherLang(lang))} jsonPath="/index.json" jsonLd={jsonLd}>
+  <section class="hero container reveal">
+    <p class="eyebrow">{t(lang, 'home.eyebrow')}</p>
+    <h1>{t(lang, 'home.title')}</h1>
+    <p class="lede">{t(lang, 'home.lede')}</p>
+
+    <button class="ask" type="button" data-search-open>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
+      </svg>
+      <span>{t(lang, 'home.searchPlaceholder')}</span>
+      <kbd data-mod-key>⌘K</kbd>
+    </button>
+
+    <div class="suggestions">
+      {suggestions.map((q) => (
+        <button class="chip" type="button" data-search-open data-search-query={q}>{q}</button>
+      ))}
+    </div>
+  </section>
+
+  <div class="container sections">
+    {sections.filter((s) => s.items.length > 0).map((s) => (
+      <section>
+        <SectionHeader
+          title={s.meta.label}
+          description={s.meta.description}
+          href={localizedPath(`/${s.collection}/`, lang)}
+          linkLabel={t(lang, 'common.viewAll')}
+        />
+        <ItemList items={s.items} lang={lang} />
+      </section>
+    ))}
+
+    <section class="agents">
+      <div class="agents-copy">
+        <h2>{t(lang, 'home.agents.title')}</h2>
+        <p>{t(lang, 'home.agents.lede')}</p>
+      </div>
+      <ul class="endpoints">
+        {endpoints.map((e) => (
+          <li>
+            <a href={e.path}><code>{e.path}</code></a>
+            <span>{e[lang]}</span>
+          </li>
+        ))}
+        <li>
+          <code>MCP server</code>
+          <span class="soon">{t(lang, 'home.agents.soon')}</span>
+        </li>
+      </ul>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-block: var(--s-10) var(--s-9);
+    text-align: center;
+  }
+  h1 {
+    max-width: 14em;
+    margin-top: var(--s-4);
+    font-size: clamp(36px, 6vw, 68px);
+    line-height: 1.05;
+  }
+  :lang(en) h1 {
+    letter-spacing: -0.035em;
+  }
+  :lang(ja) h1 {
+    max-width: 12em;
+    line-height: 1.25;
+  }
+  .lede {
+    max-width: 34em;
+    margin-top: var(--s-5);
+    color: var(--fg-muted);
+    font-size: clamp(16px, 1.6vw, 18px);
+    line-height: 1.6;
+  }
+
+  .ask {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    width: min(680px, 100%);
+    height: 60px;
+    margin-top: var(--s-7);
+    padding: 0 var(--s-3) 0 var(--s-5);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    background: var(--bg-subtle);
+    color: var(--fg-subtle);
+    font-size: 16px;
+    text-align: left;
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 8px 24px rgb(0 0 0 / 0.04);
+    transition: border-color var(--dur) var(--ease);
+  }
+  .ask:hover {
+    border-color: var(--border-strong);
+  }
+  .ask span {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+  }
+
+  .sections {
+    display: grid;
+    gap: var(--s-9);
+    max-width: calc(880px + var(--gutter) * 2);
+  }
+
+  .agents {
+    display: grid;
+    grid-template-columns: 1fr 1.3fr;
+    gap: var(--s-7);
+    padding: var(--s-7);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    background: var(--bg-subtle);
+  }
+  .agents h2 {
+    font-size: 22px;
+  }
+  .agents-copy p {
+    margin-top: var(--s-3);
+    color: var(--fg-muted);
+    font-size: 15px;
+  }
+  .endpoints {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+  }
+  .endpoints li {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-4);
+    padding: var(--s-3) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .endpoints li:last-child {
+    border-bottom: 0;
+  }
+  .endpoints a {
+    text-decoration: none;
+  }
+  .endpoints code {
+    color: var(--fg);
+  }
+  .endpoints span {
+    color: var(--fg-muted);
+    text-align: right;
+  }
+  .soon {
+    color: var(--fg-subtle) !important;
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      padding-block: var(--s-8) var(--s-8);
+    }
+    .ask {
+      height: 54px;
+      margin-top: var(--s-6);
+    }
+    .ask kbd {
+      display: none;
+    }
+    .sections {
+      gap: var(--s-8);
+    }
+    .agents {
+      grid-template-columns: 1fr;
+      gap: var(--s-5);
+      padding: var(--s-5);
+    }
+    .endpoints li {
+      flex-direction: column;
+      gap: 2px;
+    }
+    .endpoints span {
+      text-align: left;
+    }
+  }
+</style>

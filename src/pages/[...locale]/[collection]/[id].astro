@@ -1,0 +1,339 @@
+---
+import { render } from 'astro:content';
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CopyButton from '../../../components/CopyButton.astro';
+import {
+  COLLECTION_META,
+  getAllItems,
+  getTranslation,
+  itemDate,
+  itemJsonPath,
+  itemPath,
+  splitId,
+  type Item,
+} from '../../../lib/content';
+import { formatDate, isoDate, localeParam, localizedPath, t, LANG_LABEL } from '../../../lib/i18n';
+
+export async function getStaticPaths() {
+  const items = await getAllItems();
+  return items.map((item) => {
+    const { lang, slug } = splitId(item.id);
+    return { params: { locale: localeParam(lang), collection: item.collection, id: slug }, props: { item } };
+  });
+}
+
+const { item } = Astro.props as { item: Item };
+const { lang } = splitId(item.id);
+const { data } = item;
+const meta = COLLECTION_META[item.collection][lang];
+const { Content, headings } = await render(item);
+const toc = headings.filter((h) => h.depth === 2);
+const translation = await getTranslation(item);
+const alternatePath = translation ? itemPath(translation) : null;
+const jsonPath = itemJsonPath(item);
+const date = itemDate(item);
+const url = new URL(itemPath(item), Astro.site).href;
+
+// The text a reader will copy straight into Grok Bot.
+const copyBlock =
+  item.collection === 'prompts'
+    ? { label: t(lang, 'common.prompt'), text: data.prompt }
+    : item.collection === 'bots'
+      ? { label: t(lang, 'common.firstMessage'), text: data.job }
+      : null;
+
+const schemaType = { guides: 'TechArticle', news: 'NewsArticle', bots: 'HowTo', prompts: 'CreativeWork' }[item.collection];
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': schemaType,
+  [item.collection === 'bots' ? 'name' : 'headline']: data.title,
+  description: data.summary,
+  inLanguage: lang,
+  url,
+  dateModified: isoDate(data.updated),
+  ...(item.collection === 'news' ? { datePublished: isoDate(data.published) } : {}),
+  citation: data.sources.map((s) => s.url),
+  isPartOf: { '@type': 'WebSite', name: 'grokbotforum', url: new URL('/', Astro.site).href },
+};
+---
+
+<BaseLayout
+  lang={lang}
+  title={data.title}
+  description={data.summary}
+  alternatePath={alternatePath}
+  jsonPath={jsonPath}
+  ogType="article"
+  jsonLd={jsonLd}
+>
+  <div class="container layout reveal">
+    <article>
+      <header>
+        <a class="crumb" href={localizedPath(`/${item.collection}/`, lang)}>{meta.label}</a>
+        <h1>{data.title}</h1>
+        <p class="lede">{data.summary}</p>
+        <p class="meta">
+          <span>
+            {t(lang, item.collection === 'news' ? 'common.published' : 'common.updated')}
+            {' '}<time datetime={isoDate(date)}>{formatDate(date, lang)}</time>
+          </span>
+          {data.sources.length > 0 && (
+            <a href="#sources">{data.sources.length} {data.sources.length === 1 ? t(lang, 'common.sourceCount') : t(lang, 'common.sourcesCount')}</a>
+          )}
+          {translation && <a href={alternatePath} hreflang={splitId(translation.id).lang}>{t(lang, 'common.otherLang')}</a>}
+        </p>
+        {data.tags.length > 0 && (
+          <div class="tags">{data.tags.map((tag) => <span class="chip">{tag}</span>)}</div>
+        )}
+      </header>
+
+      {item.collection === 'docs' && (
+        <aside class="official">
+          <p>{t(lang, 'docs.notice')}</p>
+          <a class="btn btn-secondary btn-sm" href={data.official} rel="noopener" hreflang="en">
+            {t(lang, 'docs.official')} <span aria-hidden="true">↗</span>
+          </a>
+        </aside>
+      )}
+
+      {item.collection === 'bots' && data.apps.length > 0 && (
+        <p class="apps">
+          <span>{t(lang, 'common.apps')}</span>
+          {data.apps.map((app) => <span class="chip">{app}</span>)}
+        </p>
+      )}
+
+      {copyBlock && (
+        <figure class="prompt">
+          <figcaption>
+            <span>{copyBlock.label}</span>
+            <CopyButton lang={lang} text={copyBlock.text} />
+          </figcaption>
+          <pre><code>{copyBlock.text}</code></pre>
+        </figure>
+      )}
+
+      <div class="prose">
+        <Content />
+      </div>
+
+      {data.sources.length > 0 && (
+        <section class="sources" id="sources">
+          <h2>{t(lang, 'common.sources')}</h2>
+          <ol>
+            {data.sources.map((s) => (
+              <li>
+                <a href={s.url} rel="noopener">{s.title}</a>
+                <span>{new URL(s.url).host}</span>
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+    </article>
+
+    <aside>
+      <div class="rail">
+        {toc.length > 0 && (
+          <nav aria-label={t(lang, 'common.onThisPage')}>
+            <h2>{t(lang, 'common.onThisPage')}</h2>
+            <ul>{toc.map((h) => <li><a href={`#${h.slug}`}>{h.text}</a></li>)}</ul>
+          </nav>
+        )}
+        <div class="actions">
+          <CopyButton lang={lang} fetchJson={jsonPath} label={t(lang, 'common.copyMarkdown')} />
+          <a class="btn btn-secondary btn-sm" href={jsonPath}>{t(lang, 'common.openJson')}</a>
+        </div>
+        <p class="lang">{LANG_LABEL[lang]}</p>
+      </div>
+    </aside>
+  </div>
+</BaseLayout>
+
+<style>
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, var(--w-content)) 220px;
+    justify-content: center;
+    gap: var(--s-9);
+    padding-top: var(--s-8);
+  }
+  article {
+    min-width: 0;
+  }
+  .crumb {
+    color: var(--fg-muted);
+    font-size: 14px;
+    text-decoration: none;
+  }
+  .crumb:hover {
+    color: var(--fg);
+  }
+  h1 {
+    margin-top: var(--s-3);
+    font-size: clamp(30px, 4vw, 44px);
+  }
+  .lede {
+    margin-top: var(--s-4);
+    color: var(--fg-muted);
+    font-size: 18px;
+    line-height: 1.6;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-4);
+    margin-top: var(--s-5);
+    color: var(--fg-subtle);
+    font-size: 14px;
+  }
+  .meta a {
+    color: var(--fg-muted);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+  }
+  header {
+    padding-bottom: var(--s-6);
+    margin-bottom: var(--s-6);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .official {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-4);
+    flex-wrap: wrap;
+    margin-bottom: var(--s-6);
+    padding: var(--s-3) var(--s-3) var(--s-3) var(--s-4);
+    border-left: 2px solid var(--border-strong);
+    background: var(--bg-subtle);
+    border-radius: 0 var(--r-md) var(--r-md) 0;
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  .apps {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    flex-wrap: wrap;
+    margin-bottom: var(--s-5);
+    color: var(--fg-muted);
+    font-size: 13px;
+  }
+
+  .prompt {
+    margin-bottom: var(--s-7);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--bg-subtle);
+    overflow: hidden;
+  }
+  .prompt figcaption {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--s-2) var(--s-2) var(--s-2) var(--s-4);
+    border-bottom: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-size: 13px;
+  }
+  .prompt pre {
+    padding: var(--s-4);
+    overflow-x: auto;
+    font-size: 13.5px;
+    line-height: 1.7;
+    white-space: pre-wrap;
+  }
+
+  .sources {
+    margin-top: var(--s-8);
+    padding-top: var(--s-5);
+    border-top: 1px solid var(--border);
+  }
+  .sources h2 {
+    font-size: 15px;
+  }
+  .sources ol {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+    padding-left: 1.4em;
+    color: var(--fg-subtle);
+    font-size: 14px;
+  }
+  .sources span {
+    margin-left: var(--s-2);
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+
+  aside {
+    position: relative;
+  }
+  .rail {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--s-6));
+    display: grid;
+    gap: var(--s-6);
+    font-size: 13px;
+  }
+  .rail h2 {
+    margin-bottom: var(--s-2);
+    color: var(--fg-subtle);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .rail ul {
+    display: grid;
+    gap: var(--s-2);
+    padding: 0;
+    list-style: none;
+    line-height: 1.45;
+  }
+  .rail ul a {
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+  .rail ul a:hover {
+    color: var(--fg);
+  }
+  .actions {
+    display: grid;
+    gap: var(--s-2);
+    justify-items: start;
+  }
+  .lang {
+    color: var(--fg-subtle);
+  }
+
+  @media (max-width: 1080px) {
+    .layout {
+      grid-template-columns: minmax(0, var(--w-content));
+      gap: var(--s-7);
+    }
+    .rail {
+      position: static;
+    }
+    .rail nav,
+    .rail .lang {
+      display: none;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  }
+  @media (max-width: 640px) {
+    .layout {
+      padding-top: var(--s-6);
+    }
+    .lede {
+      font-size: 17px;
+    }
+  }
+</style>

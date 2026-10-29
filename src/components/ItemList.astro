@@ -1,0 +1,87 @@
+---
+import { itemDate, itemPath, type Item } from '../lib/content';
+import { formatDate, isoDate, t, type Lang } from '../lib/i18n';
+
+interface Props {
+  items: Item[];
+  lang: Lang;
+  /** Expose tags as data attributes for client-side filtering. */
+  filterable?: boolean;
+}
+
+const { items, lang, filterable = false } = Astro.props;
+---
+
+{items.length === 0 ? (
+  <p class="empty">{t(lang, 'common.empty')}</p>
+) : (
+  <ul class="list">
+    {items.map((item) => {
+      const date = itemDate(item);
+      return (
+        <li data-tags={filterable ? item.data.tags.join('|') : undefined}>
+          <a href={itemPath(item)}>
+            <span class="title">{item.data.title}</span>
+            <span class="summary">{item.data.summary}</span>
+            <span class="meta">
+              <time datetime={isoDate(date)}>{formatDate(date, lang)}</time>
+              {item.data.tags.slice(0, 3).map((tag) => <span>{tag}</span>)}
+            </span>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+)}
+
+<style>
+  .list {
+    padding: 0;
+    list-style: none;
+    border-top: 1px solid var(--border);
+  }
+  li {
+    border-bottom: 1px solid var(--border);
+  }
+  a {
+    display: grid;
+    gap: var(--s-1);
+    padding: var(--s-5) 0;
+    color: var(--fg);
+    text-decoration: none;
+  }
+  .title {
+    font-size: 17px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 4px;
+    transition: text-decoration-color var(--dur) var(--ease);
+  }
+  a:hover .title {
+    text-decoration-color: currentColor;
+  }
+  .summary {
+    color: var(--fg-muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-3);
+    margin-top: var(--s-1);
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+  .meta span::before {
+    content: '#';
+    opacity: 0.6;
+  }
+  .empty {
+    padding: var(--s-7) 0;
+    border-top: 1px solid var(--border);
+    color: var(--fg-muted);
+  }
+</style>
