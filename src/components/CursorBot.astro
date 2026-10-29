@@ -69,7 +69,7 @@
     height: 56px;
     padding: 0;
     border-radius: 50%;
-    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.18));
+    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.22));
     transition: transform var(--dur) var(--ease);
   }
   .cursor-bot:hover {
@@ -84,22 +84,12 @@
     height: 100%;
     overflow: visible;
   }
-  /* The face stays light and the eyes dark in both themes, like a lit-up screen. */
+  /* Follows the theme: a black bot on light pages, a light bot on dark pages. */
   .face {
-    fill: #f2f2f2;
-    stroke: #0d0d0d;
-    stroke-width: 2;
-  }
-  :global(:root[data-theme='dark']) .face {
-    stroke: #3a3a3a;
-  }
-  @media (prefers-color-scheme: dark) {
-    :global(:root:not([data-theme='light'])) .face {
-      stroke: #3a3a3a;
-    }
+    fill: var(--fg);
   }
   .eye {
-    fill: #0d0d0d;
+    fill: var(--bg);
     transform-box: fill-box;
     transform-origin: center;
     transition: transform 90ms ease;
