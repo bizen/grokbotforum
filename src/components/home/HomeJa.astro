@@ -163,7 +163,9 @@ const jsonLd = {
                 </li>
               ))}
             </ul>
-    
+          </div>
+        ))}
+      </nav>
 
       <nav class="box toc" aria-label={t(lang, 'portal.officialToc')}>
         <h2 class="box-title">{t(lang, 'portal.officialToc')}</h2>
@@ -184,9 +186,6 @@ const jsonLd = {
         {OFFICIAL_DOCS.some((g) => g.pages.some((p) => !docSlugs.has(p.slug))) && (
           <p class="note">{t(lang, 'portal.officialTocNote')}</p>
         )}
-      </nav>
-      </div>
-        ))}
       </nav>
       </div>
 

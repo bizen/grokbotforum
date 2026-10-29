@@ -1,0 +1,123 @@
+---
+// Site mascot: an original round bot (not xAI's character) whose capsule eyes follow the pointer.
+// Clicking it opens search. Motion is skipped under prefers-reduced-motion.
+---
+
+<button class="cursor-bot" type="button" data-search-open aria-label="検索を開く" title="何でも探す（⌘K）">
+  <svg viewBox="0 0 64 64" aria-hidden="true">
+    <circle class="face" cx="32" cy="32" r="29" />
+    <g class="eyes" data-bot-eyes>
+      <rect class="eye" x="20" y="21" width="8" height="18" rx="4" />
+      <rect class="eye" x="36" y="21" width="8" height="18" rx="4" />
+    </g>
+  </svg>
+</button>
+
+<script>
+  const bot = document.querySelector<HTMLElement>('.cursor-bot');
+  const eyes = bot?.querySelector<SVGGElement>('[data-bot-eyes]');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (bot && eyes && !still) {
+    const MAX = 5; // how far the eyes can travel inside the face, in SVG units
+    let target = { x: 0, y: 0 };
+    let current = { x: 0, y: 0 };
+    let frame = 0;
+
+    const tick = () => {
+      // Ease toward the target so the eyes glide instead of snapping.
+      current.x += (target.x - current.x) * 0.25;
+      current.y += (target.y - current.y) * 0.25;
+      eyes.style.transform = `translate(${current.x}px, ${current.y}px)`;
+      frame = Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.05 ? requestAnimationFrame(tick) : 0;
+    };
+
+    const look = (clientX: number, clientY: number) => {
+      const rect = bot.getBoundingClientRect();
+      const dx = clientX - (rect.left + rect.width / 2);
+      const dy = clientY - (rect.top + rect.height / 2);
+      const distance = Math.hypot(dx, dy) || 1;
+      const reach = Math.min(distance / 120, 1); // close to the bot = smaller movement
+      // CSS transforms on SVG children are in SVG user units, matching MAX.
+      target = { x: (dx / distance) * MAX * reach, y: (dy / distance) * MAX * reach };
+      if (!frame) frame = requestAnimationFrame(tick);
+    };
+
+    addEventListener('pointermove', (e) => look(e.clientX, e.clientY), { passive: true });
+    document.addEventListener('pointerleave', () => {
+      target = { x: 0, y: 0 };
+      if (!frame) frame = requestAnimationFrame(tick);
+    });
+
+    // Blink every few seconds.
+    const blink = () => {
+      bot.classList.add('blink');
+      setTimeout(() => bot.classList.remove('blink'), 140);
+      setTimeout(blink, 2500 + Math.random() * 4000);
+    };
+    setTimeout(blink, 3000);
+  }
+</script>
+
+<style>
+  .cursor-bot {
+    position: fixed;
+    left: 20px;
+    bottom: 20px;
+    z-index: 40;
+    width: 56px;
+    height: 56px;
+    padding: 0;
+    border-radius: 50%;
+    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.18));
+    transition: transform var(--dur) var(--ease);
+  }
+  .cursor-bot:hover {
+    transform: translateY(-2px) scale(1.04);
+  }
+  .cursor-bot:focus-visible {
+    outline-offset: 4px;
+    border-radius: 50%;
+  }
+  svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+  }
+  /* The face stays light and the eyes dark in both themes, like a lit-up screen. */
+  .face {
+    fill: #f2f2f2;
+    stroke: #0d0d0d;
+    stroke-width: 2;
+  }
+  :global(:root[data-theme='dark']) .face {
+    stroke: #3a3a3a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .face {
+      stroke: #3a3a3a;
+    }
+  }
+  .eye {
+    fill: #0d0d0d;
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: transform 90ms ease;
+  }
+  .blink .eye {
+    transform: scaleY(0.12);
+  }
+  @media (max-width: 640px) {
+    .cursor-bot {
+      left: 14px;
+      bottom: 14px;
+      width: 46px;
+      height: 46px;
+    }
+  }
+  @media print {
+    .cursor-bot {
+      display: none;
+    }
+  }
+</style>

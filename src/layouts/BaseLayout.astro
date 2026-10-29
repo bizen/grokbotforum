@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import { COLLECTION_META, getNavCollections } from '../lib/content';
+import CursorBot from '../components/CursorBot.astro';
 import EnglishGate from '../components/EnglishGate.astro';
 import { t, localizedPath, type Lang } from '../lib/i18n';
 
@@ -157,6 +158,8 @@ const nav = (await getNavCollections(lang)).map((c) => ({
         </div>
       </div>
     </footer>
+
+    <CursorBot />
 
     <dialog class="gate-dialog" data-gate aria-label="About this site">
       <EnglishGate variant="dialog" />
