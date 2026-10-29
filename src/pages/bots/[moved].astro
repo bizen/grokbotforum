@@ -1,0 +1,11 @@
+---
+// Bot roles moved from /bots/ to /prompts/ when /bots/ became the marketplace guide.
+// Static redirect pages, so both /bots/<slug> and /bots/<slug>/ keep working.
+export function getStaticPaths() {
+  return ['chief-of-staff', 'bug-reproducer', 'x-trend-watcher', 'gbf-navi', 'gbf-docs-watcher'].map((moved) => ({
+    params: { moved },
+  }));
+}
+
+return Astro.redirect(`/prompts/${Astro.params.moved}/`, 308);
+---
