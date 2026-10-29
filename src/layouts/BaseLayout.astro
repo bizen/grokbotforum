@@ -58,7 +58,9 @@ const nav = (await getNavCollections(lang)).map((c) => ({
     {jsonPath && <link rel="alternate" type="application/json" href={jsonPath} />}
     <link rel="alternate" type="text/plain" title="llms.txt" href="/llms.txt" />
     <link rel="alternate" type="application/rss+xml" title={siteName} href={localizedPath('/feed.xml', lang)} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" type="image/png" href="/icon-192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -82,13 +84,7 @@ const nav = (await getNavCollections(lang)).map((c) => ({
 
     <header class="nav" data-nav>
       <div class="container nav-inner">
-        <a class="wordmark" href={localizedPath('/', lang)} aria-label={siteName}>
-          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true">
-            <rect width="24" height="24" rx="6" fill="currentColor" />
-            <path d="M15.5 6 8.5 18" stroke="var(--bg)" stroke-width="2.2" stroke-linecap="round" />
-          </svg>
-          <span>{siteName}</span>
-        </a>
+        <a class="nav-logo" href={localizedPath('/', lang)} aria-label="Grok Bot Forum"></a>
 
         <nav class="nav-links" aria-label="Primary">
           {nav.map((item) => (
@@ -247,6 +243,20 @@ const nav = (await getNavCollections(lang)).map((c) => ({
         align-items: center;
         gap: var(--s-6);
         height: var(--nav-h);
+      }
+
+      /* One-line hand-drawn logo, masked so it follows the text color. */
+      .nav-logo {
+        flex-shrink: 0;
+        width: 170px;
+        aspect-ratio: 1200 / 207;
+        background: var(--fg);
+        -webkit-mask: url('/logo-inline.png') center / contain no-repeat;
+        mask: url('/logo-inline.png') center / contain no-repeat;
+        transition: opacity var(--dur) var(--ease);
+      }
+      .nav-logo:hover {
+        opacity: 0.75;
       }
 
       .wordmark {
