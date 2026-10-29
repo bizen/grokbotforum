@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import StatusBox from '../StatusBox.astro';
 import { OFFICIAL_DOCS, OFFICIAL_DOCS_BASE } from '../../data/official-docs';
+import { OFFICIAL_LINKS } from '../../data/official-links';
 import { QUICK_FACTS, QUICK_FACTS_CHECKED } from '../../data/quick-facts';
 import {
   COLLECTION_META,
@@ -146,6 +148,7 @@ const jsonLd = {
         )}
       </div>
 
+      <div class="leftcol">
       <nav class="box toc" aria-label={t(lang, 'portal.officialToc')}>
         <h2 class="box-title">{t(lang, 'portal.officialToc')}</h2>
         {OFFICIAL_DOCS.map((group) => (
@@ -162,10 +165,32 @@ const jsonLd = {
             </ul>
           </div>
         ))}
-        <p class="note">{t(lang, 'portal.officialTocNote')}</p>
+        {OFFICIAL_DOCS.some((g) => g.pages.some((p) => !docSlugs.has(p.slug))) && (
+          <p class="note">{t(lang, 'portal.officialTocNote')}</p>
+        )}
       </nav>
 
+      <nav class="box links" aria-label="公式リンク">
+        <h2 class="box-title">公式リンク</h2>
+        {OFFICIAL_LINKS.map((group) => (
+          <div class="toc-group">
+            <h3>{group.group}</h3>
+            <ul>
+              {group.links.map((link) => (
+                <li>
+                  <a class="external" href={link.url} rel="noopener">
+                    {link.label}<span aria-hidden="true"> ↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+      </div>
+
       <aside class="side">
+        <StatusBox />
         <section class="box">
           <h2 class="box-title">{t(lang, 'portal.facts')}</h2>
           <dl class="facts">
@@ -406,8 +431,11 @@ const jsonLd = {
     gap: var(--s-4);
     align-items: start;
   }
-  .toc {
+  .leftcol {
     grid-area: toc;
+    display: grid;
+    gap: var(--s-4);
+    align-content: start;
   }
   .center {
     grid-area: center;
@@ -421,27 +449,6 @@ const jsonLd = {
     gap: var(--s-4);
   }
 
-  .box {
-    border: 1px solid var(--border);
-    border-radius: var(--r-md);
-    padding: var(--s-4);
-    background: var(--bg);
-  }
-  .box-title {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: var(--s-3);
-    font-size: 14px;
-    font-weight: 600;
-    line-height: 1.4;
-  }
-  .box-title a {
-    color: var(--fg-muted);
-    font-size: 12px;
-    font-weight: 400;
-    text-decoration: none;
-  }
   .note {
     margin-top: var(--s-3);
     color: var(--fg-subtle);
@@ -583,29 +590,32 @@ const jsonLd = {
   }
 
   /* Official docs TOC */
+  .links li a {
+    font-size: 13.5px;
+  }
   .toc-group + .toc-group {
     margin-top: var(--s-4);
   }
-  .toc h3 {
+  :is(.toc, .links) h3 {
     margin-bottom: var(--s-1);
     color: var(--fg-subtle);
     font-size: 12px;
     font-weight: 500;
   }
-  .toc ul {
+  :is(.toc, .links) ul {
     padding: 0;
     list-style: none;
   }
-  .toc li a {
+  :is(.toc, .links) li a {
     display: block;
     padding: 3px 0;
     font-size: 14px;
     text-decoration: none;
   }
-  .toc li a:hover {
+  :is(.toc, .links) li a:hover {
     text-decoration: underline;
   }
-  .toc .external {
+  :is(.toc, .links) .external {
     color: var(--fg-muted);
   }
 

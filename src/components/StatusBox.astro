@@ -1,0 +1,134 @@
+---
+// Live service status, fetched in the browser from status.x.ai (Statuspage-compatible API with
+// open CORS). Static fallback: a link to the status page.
+const STATUS_PAGE = 'https://status.x.ai';
+const WATCH = ['Grok Bot', 'Cloud Agents', 'Automations', 'cursor.com'];
+---
+
+<section class="box status" data-status data-watch={WATCH.join('|')}>
+  <h2 class="box-title">
+    稼働状況
+    <a href={STATUS_PAGE} rel="noopener">status.x.ai</a>
+  </h2>
+  <p class="overall" data-status-overall>
+    <span class="dot" data-level="unknown"></span>
+    <span data-status-text>確認中…</span>
+  </p>
+  <ul class="components" data-status-list hidden></ul>
+  <p class="note" data-status-incident hidden></p>
+</section>
+
+<script>
+  const LABEL: Record<string, string> = {
+    operational: '正常',
+    degraded_performance: '遅延',
+    partial_outage: '一部障害',
+    major_outage: '障害',
+    under_maintenance: 'メンテナンス',
+  };
+  const OVERALL: Record<string, string> = {
+    none: 'すべて正常に動いています',
+    minor: '一部に問題があります',
+    major: '大きな障害が起きています',
+    critical: '重大な障害が起きています',
+    maintenance: 'メンテナンス中です',
+  };
+
+  const box = document.querySelector<HTMLElement>('[data-status]');
+  if (box) {
+    const text = box.querySelector('[data-status-text]')!;
+    const dot = box.querySelector<HTMLElement>('.dot')!;
+    const list = box.querySelector<HTMLUListElement>('[data-status-list]')!;
+    const incident = box.querySelector<HTMLElement>('[data-status-incident]')!;
+    const watch = (box.dataset.watch ?? '').split('|');
+
+    fetch('https://status.x.ai/api/compat/summary.json')
+      .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+      .then((data) => {
+        const indicator: string = data.status?.indicator ?? 'unknown';
+        dot.dataset.level = indicator;
+        text.textContent = OVERALL[indicator] ?? data.status?.description ?? '不明';
+
+        for (const name of watch) {
+          const c = (data.components ?? []).find((x: any) => x.name === name);
+          if (!c) continue;
+          const li = document.createElement('li');
+          const label = document.createElement('span');
+          label.textContent = name;
+          const state = document.createElement('span');
+          state.className = 'state';
+          state.dataset.state = c.status;
+          state.textContent = LABEL[c.status] ?? c.status;
+          li.append(label, state);
+          list.append(li);
+        }
+        list.hidden = list.children.length === 0;
+
+        const open = (data.incidents ?? []).filter((i: any) => i.status !== 'resolved');
+        if (open.length) {
+          incident.hidden = false;
+          incident.textContent = `対応中の障害: ${open[0].name}${open.length > 1 ? ` ほか ${open.length - 1} 件` : ''}`;
+        }
+      })
+      .catch(() => {
+        text.textContent = '取得できませんでした。status.x.ai で確認してください';
+      });
+  }
+</script>
+
+<style>
+  .overall {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    font-size: 14px;
+  }
+  .dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--fg-subtle);
+  }
+  .dot[data-level='none'] {
+    background: var(--ok);
+  }
+  .dot[data-level='minor'],
+  .dot[data-level='maintenance'] {
+    background: var(--warn);
+  }
+  .dot[data-level='major'],
+  .dot[data-level='critical'] {
+    background: var(--danger);
+  }
+  .components {
+    display: grid;
+    gap: 2px;
+    margin-top: var(--s-3);
+    padding: var(--s-2) 0 0;
+    border-top: 1px solid var(--border);
+    list-style: none;
+    font-size: 13px;
+  }
+  /* Rows are created by the script, so they need :global to get these styles. */
+  .components :global(li) {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+  }
+  .components :global(.state) {
+    color: var(--fg-muted);
+  }
+  .components :global(.state:not([data-state='operational'])) {
+    color: var(--warn);
+    font-weight: 600;
+  }
+  .components :global(.state[data-state='major_outage']) {
+    color: var(--danger);
+  }
+  .note {
+    margin-top: var(--s-2);
+    color: var(--warn);
+    font-size: 12.5px;
+  }
+</style>

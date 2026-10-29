@@ -288,6 +288,29 @@ kbd {
   letter-spacing: 0.01em;
 }
 
+/* Portal boxes (home page, status) */
+.box {
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: var(--s-4);
+  background: var(--bg);
+}
+.box-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--s-3);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+.box-title a {
+  color: var(--fg-muted);
+  font-size: 12px;
+  font-weight: 400;
+  text-decoration: none;
+}
+
 /* Long-form Markdown */
 .prose {
   font-size: 16px;
@@ -389,4 +412,53 @@ kbd {
   :root:not([data-theme='light']) :is(.astro-code, .astro-code span) {
     color: var(--shiki-dark);
   }
+}
+
+/* Diagrams embedded in Markdown */
+.prose .diagram {
+  margin: var(--s-6) 0;
+  padding: var(--s-5);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  background: var(--bg-subtle);
+}
+.diagram svg {
+  width: 100%;
+  height: auto;
+  max-width: 560px;
+  margin-inline: auto;
+}
+.diagram .node rect {
+  fill: var(--bg);
+  stroke: var(--border-strong);
+  stroke-width: 1.5;
+}
+.diagram .node.main rect {
+  fill: var(--inverse-bg);
+  stroke: var(--inverse-bg);
+}
+.diagram .t {
+  fill: var(--fg);
+  font-size: 18px;
+  font-weight: 600;
+  text-anchor: middle;
+}
+.diagram .s {
+  fill: var(--fg-muted);
+  font-size: 12.5px;
+  text-anchor: middle;
+}
+.diagram .main .t,
+.diagram .main .s {
+  fill: var(--inverse-fg);
+}
+.diagram .edge,
+.diagram .arrow {
+  fill: none;
+  stroke: var(--fg-subtle);
+  stroke-width: 1.5;
+}
+.diagram .e {
+  fill: var(--fg-muted);
+  font-size: 12.5px;
 }
