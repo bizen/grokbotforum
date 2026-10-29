@@ -44,6 +44,7 @@ const strings = {
     'common.copy': 'コピー',
     'common.copied': 'コピーしました',
     'common.copyMarkdown': 'Markdown をコピー',
+    'common.shareX': 'X でシェア',
     'common.openJson': 'JSON を開く',
     'common.open': '開く',
     'common.prompt': 'プロンプト',

@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { localizedPath, type Lang } from './i18n';
 
-export const COLLECTIONS = ['docs', 'bots', 'prompts', 'news'] as const;
+export const COLLECTIONS = ['docs', 'reference', 'bots', 'prompts', 'news'] as const;
 export type CollectionName = (typeof COLLECTIONS)[number];
 export type Item = CollectionEntry<CollectionName>;
 
@@ -11,6 +11,9 @@ export const COLLECTION_META: Record<
 > = {
   docs: {
     ja: { label: 'ドキュメント', description: '公式の Grok Bot ドキュメントを、日本語で解説。各ページに原文へのリンクつき。' },
+  },
+  reference: {
+    ja: { label: 'まとめ', description: '上限値やプラン比較など、公式ドキュメントに散らばった情報を 1 ページに。' },
   },
   bots: {
     ja: { label: 'ボット', description: 'Grok Bot に任せられる役割と、それを始める最初のメッセージ。' },

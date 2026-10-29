@@ -27,6 +27,12 @@ const docs = defineCollection({
   }),
 });
 
+// Cross-cutting reference pages (limits, plan comparison…) compiled from several official pages.
+const reference = defineCollection({
+  loader: loader('reference'),
+  schema: base,
+});
+
 // A Bot "role": one focused job for a Grok Bot, plus the first message that sets it up.
 const bots = defineCollection({
   loader: loader('bots'),
@@ -53,4 +59,4 @@ const news = defineCollection({
   }),
 });
 
-export const collections = { docs, bots, prompts, news };
+export const collections = { docs, reference, bots, prompts, news };
