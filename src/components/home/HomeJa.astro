@@ -1,0 +1,596 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { OFFICIAL_DOCS, OFFICIAL_DOCS_BASE } from '../../data/official-docs';
+import { QUICK_FACTS, QUICK_FACTS_CHECKED } from '../../data/quick-facts';
+import {
+  COLLECTION_META,
+  getAllItems,
+  getItems,
+  getNavCollections,
+  isNew,
+  itemDate,
+  itemPath,
+  splitId,
+  type Item,
+} from '../../lib/content';
+import { localizedPath, t } from '../../lib/i18n';
+
+// Dense, Yahoo! JAPAN–style portal: scan-first layout, same quiet visual system.
+const lang = 'ja';
+
+const navCollections = await getNavCollections(lang);
+const latest = (await getAllItems(lang)).sort((a, b) => itemDate(b).getTime() - itemDate(a).getTime());
+const tabs = [
+  { id: 'top', label: '主要', items: latest.slice(0, 8), more: null as string | null },
+  ...(await Promise.all(
+    navCollections.map(async (c) => ({
+      id: c,
+      label: COLLECTION_META[c][lang].label,
+      items: (await getItems(c, lang)).slice(0, 8),
+      more: localizedPath(`/${c}/`, lang),
+    })),
+  )),
+];
+
+const docSlugs = new Set((await getItems('docs', lang)).map((item) => splitId(item.id).slug));
+const bots = (await getItems('bots', lang)).slice(0, 4);
+const firstLine = (item: Item) =>
+  item.collection === 'bots' ? item.data.job.split('\n').find((l) => l.trim()) ?? '' : '';
+
+const builtAt = new Intl.DateTimeFormat('ja-JP', {
+  month: 'numeric',
+  day: 'numeric',
+  weekday: 'short',
+  hour: 'numeric',
+  minute: '2-digit',
+  timeZone: 'Asia/Tokyo',
+})
+  .formatToParts(new Date())
+  .reduce<Record<string, string>>((acc, p) => ({ ...acc, [p.type]: p.value }), {});
+const updatedLabel = `${builtAt.month}/${builtAt.day}(${builtAt.weekday}) ${builtAt.hour}:${builtAt.minute}`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'grokbotforum',
+  url: new URL('/', Astro.site).href,
+  inLanguage: lang,
+  description: t(lang, 'site.description'),
+};
+---
+
+<BaseLayout lang={lang} alternatePath="/en/" jsonPath="/index.json" jsonLd={jsonLd}>
+  <div class="portal container">
+    <section class="searchband" aria-label={t(lang, 'nav.search')}>
+      <h1 class="logo">
+        <span class="visually-hidden">Grok Bot Forum</span>
+      </h1>
+      <div class="scopes">
+        <button type="button" class="scope current" data-search-open>すべて</button>
+        {navCollections.map((c) => (
+          <button type="button" class="scope" data-search-open data-search-scope={c}>
+            {COLLECTION_META[c][lang].label}
+          </button>
+        ))}
+      </div>
+      <button type="button" class="searchbox" data-search-open>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" stroke-linecap="round" />
+        </svg>
+        <span>{t(lang, 'home.searchPlaceholder')}</span>
+        <kbd data-mod-key>⌘K</kbd>
+      </button>
+      <ul class="ticker">
+        {latest.slice(0, 2).map((item) => (
+          <li>
+            <span class="ticker-label">{t(lang, 'portal.latest')}</span>
+            <a href={itemPath(item)}>{item.data.title}</a>
+          </li>
+        ))}
+      </ul>
+    </section>
+
+    <div class="grid">
+      <div class="center">
+        <section class="box topics">
+          <div class="tabs" role="tablist" aria-label="トピック">
+            {tabs.map((tab, i) => (
+              <button type="button" role="tab" id={`tab-${tab.id}`} aria-controls={`panel-${tab.id}`} aria-selected={i === 0 ? 'true' : 'false'} tabindex={i === 0 ? 0 : -1}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+          {tabs.map((tab, i) => (
+            <div class="panel" role="tabpanel" id={`panel-${tab.id}`} aria-labelledby={`tab-${tab.id}`} hidden={i !== 0}>
+              <p class="stamp tabular">{updatedLabel}{t(lang, 'portal.updated')}</p>
+              <ul class="headlines">
+                {tab.items.map((item) => (
+                  <li>
+                    <a href={itemPath(item)}>{item.data.title}</a>
+                    {isNew(item) && <span class="new">NEW</span>}
+                    {tab.id === 'top' && <span class="kind">{COLLECTION_META[item.collection][lang].label}</span>}
+                    {item.data.sources.length > 0 && (
+                      <span class="count tabular" title={t(lang, 'common.sources')}>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" stroke-linecap="round" /></svg>
+                        {item.data.sources.length}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              {tab.more && <a class="more" href={tab.more}>{t(lang, 'portal.more')}</a>}
+            </div>
+          ))}
+        </section>
+
+        {bots.length > 0 && (
+          <section class="box">
+            <h2 class="box-title">
+              {t(lang, 'portal.firstMessages')}
+              <a href={localizedPath('/bots/', lang)}>{t(lang, 'common.viewAll')}</a>
+            </h2>
+            <ul class="messages">
+              {bots.map((item) => (
+                <li>
+                  <a href={itemPath(item)}>
+                    <span class="m-title">{item.data.title}</span>
+                    <span class="m-line">{firstLine(item)}</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+
+      <nav class="box toc" aria-label={t(lang, 'portal.officialToc')}>
+        <h2 class="box-title">{t(lang, 'portal.officialToc')}</h2>
+        {OFFICIAL_DOCS.map((group) => (
+          <div class="toc-group">
+            <h3>{group.group}</h3>
+            <ul>
+              {group.pages.map((page) =>
+                docSlugs.has(page.slug) ? (
+                  <li><a href={localizedPath(`/docs/${page.slug}/`, lang)}>{page.title}</a></li>
+                ) : (
+                  <li><a class="external" href={OFFICIAL_DOCS_BASE + page.slug} rel="noopener" hreflang="en">{page.title}<span aria-hidden="true"> ↗</span></a></li>
+                ),
+              )}
+            </ul>
+          </div>
+        ))}
+        <p class="note">{t(lang, 'portal.officialTocNote')}</p>
+      </nav>
+
+      <aside class="side">
+        <section class="box">
+          <h2 class="box-title">{t(lang, 'portal.facts')}</h2>
+          <dl class="facts">
+            {QUICK_FACTS.map((fact) => (
+              <div>
+                <dt>{fact.label}</dt>
+                <dd><a href={fact.source} rel="noopener">{fact.value}</a></dd>
+              </div>
+            ))}
+          </dl>
+          <p class="note tabular">{t(lang, 'portal.checked')} {QUICK_FACTS_CHECKED}</p>
+        </section>
+
+        <section class="box">
+          <h2 class="box-title">{t(lang, 'home.agents.title')}</h2>
+          <p class="agents-lede">{t(lang, 'home.agents.lede')}</p>
+          <ul class="endpoints">
+            <li><a href="/llms.txt"><code>/llms.txt</code></a></li>
+            <li><a href="/llms-full.txt"><code>/llms-full.txt</code></a></li>
+            <li><a href="/index.json"><code>/index.json</code></a></li>
+            <li><code>MCP</code><span>{t(lang, 'home.agents.soon')}</span></li>
+          </ul>
+        </section>
+      </aside>
+    </div>
+  </div>
+</BaseLayout>
+
+<script>
+  const tablist = document.querySelector<HTMLElement>('.topics [role="tablist"]');
+  const tabs = [...(tablist?.querySelectorAll<HTMLButtonElement>('[role="tab"]') ?? [])];
+  const select = (tab: HTMLButtonElement) => {
+    for (const t of tabs) {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
+      if (panel) panel.hidden = !on;
+    }
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', (event) => {
+      const step = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+      if (!step) return;
+      const next = tabs[(i + step + tabs.length) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+</script>
+
+<style>
+  .portal {
+    max-width: calc(1120px + var(--gutter) * 2);
+  }
+
+  /* Search band */
+  .searchband {
+    display: grid;
+    justify-items: center;
+    gap: var(--s-2);
+    padding: var(--s-2) 0 var(--s-4);
+  }
+  /* Hand-drawn logo, used as a mask so it takes the text color in both themes. */
+  .logo {
+    width: clamp(220px, 28vw, 340px);
+    aspect-ratio: 1000 / 318;
+    background: var(--fg);
+    -webkit-mask: url('/logo.png') center / contain no-repeat;
+    mask: url('/logo.png') center / contain no-repeat;
+  }
+  .scopes {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-1);
+  }
+  .scope {
+    padding: 2px var(--s-2);
+    border-radius: var(--r-sm);
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  .scope:hover {
+    color: var(--fg);
+    background: var(--bg-hover);
+  }
+  .scope.current {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .searchbox {
+    display: flex;
+    align-items: center;
+    gap: var(--s-3);
+    width: min(640px, 100%);
+    height: 50px;
+    padding: 0 var(--s-3) 0 var(--s-4);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-md);
+    background: var(--bg);
+    color: var(--fg-subtle);
+    font-size: 15px;
+    text-align: left;
+    transition: border-color var(--dur) var(--ease);
+  }
+  .searchbox:hover {
+    border-color: var(--fg-subtle);
+  }
+  .searchbox span {
+    flex: 1;
+  }
+  .ticker {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--s-1) var(--s-6);
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+  }
+  .ticker li {
+    display: flex;
+    gap: var(--s-2);
+    min-width: 0;
+  }
+  .ticker-label {
+    color: var(--fg-subtle);
+  }
+  .ticker-label::before {
+    content: '» ';
+  }
+  .ticker a {
+    text-decoration: none;
+  }
+  .ticker a:hover {
+    text-decoration: underline;
+  }
+
+  /* Three columns */
+  .grid {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) 280px;
+    grid-template-areas: 'toc center side';
+    gap: var(--s-4);
+    align-items: start;
+  }
+  .toc {
+    grid-area: toc;
+  }
+  .center {
+    grid-area: center;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--s-4);
+  }
+  .side {
+    grid-area: side;
+    display: grid;
+    gap: var(--s-4);
+  }
+
+  .box {
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: var(--s-4);
+    background: var(--bg);
+  }
+  .box-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: var(--s-3);
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.4;
+  }
+  .box-title a {
+    color: var(--fg-muted);
+    font-size: 12px;
+    font-weight: 400;
+    text-decoration: none;
+  }
+  .note {
+    margin-top: var(--s-3);
+    color: var(--fg-subtle);
+    font-size: 11.5px;
+  }
+
+  /* Topics */
+  .topics {
+    padding: 0;
+  }
+  .tabs {
+    display: flex;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--border);
+    scrollbar-width: none;
+  }
+  .tabs button {
+    flex-shrink: 0;
+    padding: var(--s-3) var(--s-4);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  .tabs button:hover {
+    color: var(--fg);
+  }
+  .tabs button[aria-selected='true'] {
+    border-bottom-color: var(--fg);
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .panel {
+    padding: var(--s-3) var(--s-4) var(--s-4);
+  }
+  .stamp {
+    color: var(--fg-subtle);
+    font-size: 12px;
+  }
+  .headlines {
+    margin-top: var(--s-2);
+    padding: 0;
+    list-style: none;
+  }
+  .headlines li {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    padding: 7px 0;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  .headlines li::before {
+    content: '';
+    flex-shrink: 0;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--fg-subtle);
+  }
+  .headlines a {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-decoration: none;
+  }
+  .headlines a:hover {
+    text-decoration: underline;
+  }
+  .new {
+    flex-shrink: 0;
+    padding: 1px 6px;
+    border-radius: 4px;
+    background: var(--inverse-bg);
+    color: var(--inverse-fg);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+  }
+  .kind {
+    flex-shrink: 0;
+    color: var(--fg-subtle);
+    font-size: 12px;
+  }
+  .count {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    gap: 3px;
+    color: var(--fg-subtle);
+    font-size: 12px;
+  }
+  .more {
+    display: inline-block;
+    margin-top: var(--s-2);
+    color: var(--fg-muted);
+    font-size: 13px;
+  }
+
+  /* First messages */
+  .messages {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--s-2);
+    padding: 0;
+    list-style: none;
+  }
+  .messages a {
+    display: grid;
+    gap: 2px;
+    height: 100%;
+    padding: var(--s-3);
+    border-radius: var(--r-sm);
+    background: var(--bg-subtle);
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease);
+  }
+  .messages a:hover {
+    background: var(--bg-hover);
+  }
+  .m-title {
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .m-line {
+    overflow: hidden;
+    color: var(--fg-muted);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Official docs TOC */
+  .toc-group + .toc-group {
+    margin-top: var(--s-4);
+  }
+  .toc h3 {
+    margin-bottom: var(--s-1);
+    color: var(--fg-subtle);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .toc ul {
+    padding: 0;
+    list-style: none;
+  }
+  .toc li a {
+    display: block;
+    padding: 3px 0;
+    font-size: 14px;
+    text-decoration: none;
+  }
+  .toc li a:hover {
+    text-decoration: underline;
+  }
+  .toc .external {
+    color: var(--fg-muted);
+  }
+
+  /* Quick facts */
+  .facts div {
+    padding: var(--s-2) 0;
+    border-top: 1px solid var(--border);
+  }
+  .facts div:first-child {
+    border-top: 0;
+    padding-top: 0;
+  }
+  .facts dt {
+    color: var(--fg-subtle);
+    font-size: 12px;
+  }
+  .facts dd {
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .facts a {
+    text-decoration: none;
+  }
+  .facts a:hover {
+    text-decoration: underline;
+  }
+
+  .agents-lede {
+    color: var(--fg-muted);
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .endpoints {
+    display: grid;
+    gap: var(--s-1);
+    margin-top: var(--s-3);
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+  }
+  .endpoints li {
+    display: flex;
+    justify-content: space-between;
+  }
+  .endpoints a {
+    text-decoration: none;
+  }
+  .endpoints span {
+    color: var(--fg-subtle);
+  }
+
+  @media (max-width: 1024px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr) 260px;
+      grid-template-areas: 'center side' 'toc side';
+    }
+  }
+  @media (max-width: 720px) {
+    .searchband {
+      padding-top: var(--s-1);
+    }
+    .searchbox kbd {
+      display: none;
+    }
+    .ticker {
+      justify-content: flex-start;
+      width: 100%;
+    }
+    .ticker li {
+      width: 100%;
+    }
+    .ticker a {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: 'center' 'side' 'toc';
+    }
+    .messages {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .kind {
+      display: none;
+    }
+  }
+</style>

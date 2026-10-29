@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://grokbotforum.com/sitemap.xml
+# LLM index: https://grokbotforum.com/llms.txt

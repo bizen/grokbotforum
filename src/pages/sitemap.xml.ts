@@ -1,56 +1,40 @@
-import { getCollection } from 'astro:content';
+import type { APIContext } from 'astro';
+import { COLLECTIONS, getAllItems, getTranslation, hasLang, itemPath } from '../lib/content';
+import { LANGS, isoDate, localizedPath } from '../lib/i18n';
 
-export async function GET(context) {
-  const articles = await getCollection('articles');
-  
-  const urls = [
-    { url: '/', lastmod: new Date(), priority: 1.0, lang: 'ja' },
-    { url: '/en/', lastmod: new Date(), priority: 1.0, lang: 'en' },
-    { url: '/bots/', lastmod: new Date(), priority: 0.8, lang: 'ja' },
-    { url: '/en/bots/', lastmod: new Date(), priority: 0.8, lang: 'en' },
-    { url: '/templates/', lastmod: new Date(), priority: 0.7, lang: 'ja' },
-    { url: '/en/templates/', lastmod: new Date(), priority: 0.7, lang: 'en' },
+export async function GET({ site }: APIContext) {
+  const abs = (path: string) => new URL(path, site).href;
+  const pages: { loc: string; lastmod?: string; alternates: Record<string, string> }[] = [];
+
+  const indexPages = [
+    ...['/', '/about/'].map((path) => ({ path, langs: LANGS })),
+    ...COLLECTIONS.map((c) => ({ path: `/${c}/`, langs: LANGS.filter((l) => hasLang(c, l)) })),
   ];
-  
-  for (const article of articles) {
-    const isJapanese = article.data.language === 'ja';
-    const slug = article.id.replace(/^articles\//, '').replace(/\.md$/, '');
-    const path = isJapanese 
-      ? `/articles/${slug}/`
-      : `/en/articles/${slug}/`;
-    
-    urls.push({
-      url: path,
-      lastmod: article.data.date,
-      priority: 0.6,
-      lang: article.data.language,
-    });
+  for (const { path, langs } of indexPages) {
+    const alternates = Object.fromEntries(langs.map((l) => [l, abs(localizedPath(path, l))]));
+    for (const lang of langs) pages.push({ loc: alternates[lang], alternates });
   }
-  
-  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${urls.map(({ url, lastmod, priority, lang }) => {
-  const fullUrl = new URL(url, context.site).href;
-  const alternateLang = lang === 'ja' ? 'en' : 'ja';
-  const alternateUrl = lang === 'ja' 
-    ? url === '/' ? '/en/' : url.replace(/^\//, '/en/')
-    : url.replace(/^\/en\//, '/');
-  const fullAlternateUrl = new URL(alternateUrl, context.site).href;
-  
-  return `  <url>
-    <loc>${fullUrl}</loc>
-    <lastmod>${lastmod.toISOString()}</lastmod>
-    <priority>${priority}</priority>
-    <xhtml:link rel="alternate" hreflang="${alternateLang}" href="${fullAlternateUrl}" />
-    <xhtml:link rel="alternate" hreflang="${lang}" href="${fullUrl}" />
-  </url>`;
-}).join('\n')}
+
+  for (const item of await getAllItems()) {
+    const translation = await getTranslation(item);
+    const alternates: Record<string, string> = { [item.id.split('/')[0]]: abs(itemPath(item)) };
+    if (translation) alternates[translation.id.split('/')[0]] = abs(itemPath(translation));
+    pages.push({ loc: abs(itemPath(item)), lastmod: isoDate(item.data.updated), alternates });
+  }
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+${pages
+  .map(
+    (p) => `  <url>
+    <loc>${p.loc}</loc>${p.lastmod ? `\n    <lastmod>${p.lastmod}</lastmod>` : ''}
+${Object.entries(p.alternates)
+  .map(([lang, href]) => `    <xhtml:link rel="alternate" hreflang="${lang}" href="${href}" />`)
+  .join('\n')}
+  </url>`,
+  )
+  .join('\n')}
 </urlset>`;
 
-  return new Response(sitemap, {
-    headers: {
-      'Content-Type': 'application/xml; charset=utf-8',
-    },
-  });
+  return new Response(xml, { headers: { 'Content-Type': 'application/xml; charset=utf-8' } });
 }

@@ -1,0 +1,103 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import ItemList from '../../../components/ItemList.astro';
+import { COLLECTION_META, collectionsFor, getItems, hasLang, type CollectionName } from '../../../lib/content';
+import { LANGS, localeParam, localizedPath, otherLang, t, type Lang } from '../../../lib/i18n';
+
+export function getStaticPaths() {
+  return LANGS.flatMap((lang) =>
+    collectionsFor(lang).map((collection) => ({
+      params: { locale: localeParam(lang), collection },
+      props: { lang, collection },
+    })),
+  );
+}
+
+const { lang, collection } = Astro.props as { lang: Lang; collection: CollectionName };
+const meta = COLLECTION_META[collection][lang];
+const items = await getItems(collection, lang);
+
+const tagCounts = new Map<string, number>();
+for (const item of items) for (const tag of item.data.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) => tag);
+---
+
+<BaseLayout
+  lang={lang}
+  title={meta.label}
+  description={meta.description}
+  alternatePath={hasLang(collection, otherLang(lang)) ? localizedPath(`/${collection}/`, otherLang(lang)) : null}
+  jsonPath={`/${collection}.json`}
+>
+  <div class="container page reveal">
+    <header>
+      <h1>{meta.label}</h1>
+      <p class="lede">{meta.description}</p>
+      <p class="count tabular">{items.length} {t(lang, 'common.items')} · <a href={`/${collection}.json`}>JSON</a></p>
+    </header>
+
+    {tags.length > 1 && (
+      <div class="filters" role="toolbar" data-filters>
+        <button class="chip" type="button" aria-pressed="true" data-tag="">{t(lang, 'common.all')}</button>
+        {tags.map((tag) => (
+          <button class="chip" type="button" aria-pressed="false" data-tag={tag}>{tag}</button>
+        ))}
+      </div>
+    )}
+
+    <ItemList items={items} lang={lang} filterable />
+  </div>
+</BaseLayout>
+
+<script>
+  const bar = document.querySelector('[data-filters]');
+  bar?.addEventListener('click', (event) => {
+    const button = (event.target as HTMLElement).closest<HTMLButtonElement>('[data-tag]');
+    if (!button) return;
+    const tag = button.dataset.tag ?? '';
+    bar.querySelectorAll('[data-tag]').forEach((b) => b.setAttribute('aria-pressed', String(b === button)));
+    document.querySelectorAll<HTMLElement>('[data-tags]').forEach((row) => {
+      row.hidden = tag !== '' && !(row.dataset.tags ?? '').split('|').includes(tag);
+    });
+  });
+</script>
+
+<style>
+  .page {
+    max-width: calc(880px + var(--gutter) * 2);
+    padding-top: var(--s-9);
+  }
+  h1 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .lede {
+    margin-top: var(--s-3);
+    color: var(--fg-muted);
+    font-size: 17px;
+  }
+  .count {
+    margin-top: var(--s-4);
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+  .count a {
+    color: inherit;
+  }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: var(--s-6);
+  }
+  header + :global(*) {
+    margin-top: var(--s-7);
+  }
+  .filters + :global(*) {
+    margin-top: var(--s-5);
+  }
+  @media (max-width: 640px) {
+    .page {
+      padding-top: var(--s-7);
+    }
+  }
+</style>
