@@ -62,7 +62,7 @@ const strings = {
       'マーケットプレイスの掲載内容を日本語で解説した非公式ページです。Bot は英語で作られているので、日本語で使うなら追加後に「日本語で返答して」と伝えて覚えてもらいましょう。',
     'portal.updated': '更新',
     'portal.more': 'もっと見る',
-    'portal.officialToc': '公式ドキュメント',
+    'portal.officialToc': 'ドキュメント解説',
     'portal.officialTocNote': '↗ は未解説（公式ページへ）',
     'portal.facts': 'Grok Bot 早見表',
     'portal.checked': '確認日',

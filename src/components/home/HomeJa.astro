@@ -149,6 +149,22 @@ const jsonLd = {
       </div>
 
       <div class="leftcol">
+      <nav class="box links" aria-label="公式リンク">
+        <h2 class="box-title">公式リンク</h2>
+        {OFFICIAL_LINKS.map((group) => (
+          <div class="toc-group">
+            <h3>{group.group}</h3>
+            <ul>
+              {group.links.map((link) => (
+                <li>
+                  <a class="external" href={link.url} rel="noopener">
+                    {link.label}<span aria-hidden="true"> ↗</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+    
+
       <nav class="box toc" aria-label={t(lang, 'portal.officialToc')}>
         <h2 class="box-title">{t(lang, 'portal.officialToc')}</h2>
         {OFFICIAL_DOCS.map((group) => (
@@ -169,22 +185,7 @@ const jsonLd = {
           <p class="note">{t(lang, 'portal.officialTocNote')}</p>
         )}
       </nav>
-
-      <nav class="box links" aria-label="公式リンク">
-        <h2 class="box-title">公式リンク</h2>
-        {OFFICIAL_LINKS.map((group) => (
-          <div class="toc-group">
-            <h3>{group.group}</h3>
-            <ul>
-              {group.links.map((link) => (
-                <li>
-                  <a class="external" href={link.url} rel="noopener">
-                    {link.label}<span aria-hidden="true"> ↗</span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+      </div>
         ))}
       </nav>
       </div>
