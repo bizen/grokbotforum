@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ItemList from '../../components/ItemList.astro';
-import { COLLECTIONS, COLLECTION_META, getItems, type CollectionName } from '../../lib/content';
+import { COLLECTIONS, COLLECTION_META, getItems, itemPath, type CollectionName, type Item } from '../../lib/content';
 import { t } from '../../lib/i18n';
 
 export function getStaticPaths() {
@@ -16,6 +16,19 @@ const items = await getItems(collection, lang);
 const tagCounts = new Map<string, number>();
 for (const item of items) for (const tag of item.data.tags) tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
 const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) => tag);
+
+// The glossary reads like a dictionary: sorted by reading, grouped by kana row (あ行, か行…).
+const KANA_ROWS = ['あいうえお', 'かきくけこがぎぐげご', 'さしすせそざじずぜぞ', 'たちつてとだぢづでど', 'なにぬねの', 'はひふへほばびぶべぼぱぴぷぺぽ', 'まみむめも', 'やゆよ', 'らりるれろ', 'わをん'];
+type GlossaryItem = Extract<Item, { collection: 'glossary' }>;
+const glossaryRows =
+  collection === 'glossary'
+    ? KANA_ROWS.map((row) => ({
+        label: `${row[0]}行`,
+        items: (items as GlossaryItem[])
+          .filter((g) => row.includes(g.data.yomi[0]))
+          .sort((a, b) => a.data.yomi.localeCompare(b.data.yomi, 'ja')),
+      })).filter((r) => r.items.length > 0)
+    : [];
 ---
 
 <BaseLayout
@@ -32,7 +45,26 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) =>
       <p class="count tabular">{items.length} {t(lang, 'common.items')} · <a href={`/${collection}.json`}>JSON</a></p>
     </header>
 
-    {tags.length > 1 && (
+    {collection === 'glossary' ? (
+      <>
+        <nav class="kana" aria-label="行で移動">
+          {glossaryRows.map((r) => <a class="chip" href={`#${r.label}`}>{r.label}</a>)}
+        </nav>
+        {glossaryRows.map((r) => (
+          <section class="kana-row" id={r.label}>
+            <h2>{r.label}</h2>
+            <dl>
+              {r.items.map((g) => (
+                <div>
+                  <dt><a href={itemPath(g)}>{g.data.title}</a><span lang="en">{g.data.en}</span></dt>
+                  <dd>{g.data.summary}</dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))}
+      </>
+    ) : tags.length > 1 && (
       <div class="filters" role="toolbar" data-filters>
         <button class="chip" type="button" aria-pressed="true" data-tag="">{t(lang, 'common.all')}</button>
         {tags.map((tag) => (
@@ -41,7 +73,7 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) =>
       </div>
     )}
 
-    <ItemList items={items} lang={lang} filterable />
+    {collection !== 'glossary' && <ItemList items={items} lang={lang} filterable />}
   </div>
 </BaseLayout>
 
@@ -90,6 +122,54 @@ const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1]).map(([tag]) =>
   }
   .filters + :global(*) {
     margin-top: var(--s-5);
+  }
+  .kana {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+  }
+  .kana .chip {
+    text-decoration: none;
+  }
+  .kana .chip:hover {
+    background: var(--bg-hover);
+  }
+  .kana-row {
+    margin-top: var(--s-7);
+    scroll-margin-top: calc(var(--nav-h) + var(--s-4));
+  }
+  .kana-row h2 {
+    padding-bottom: var(--s-2);
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 18px;
+  }
+  .kana-row dl div {
+    padding: var(--s-4) 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .kana-row dt {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--s-1) var(--s-3);
+  }
+  .kana-row dt a {
+    font-size: 17px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .kana-row dt a:hover {
+    text-decoration: underline;
+  }
+  .kana-row dt span {
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+  .kana-row dd {
+    margin-top: var(--s-1);
+    color: var(--fg-muted);
+    font-size: 14.5px;
+    line-height: 1.75;
   }
   @media (max-width: 640px) {
     .page {

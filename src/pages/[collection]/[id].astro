@@ -2,9 +2,11 @@
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CopyButton from '../../components/CopyButton.astro';
+import { OFFICIAL_DOCS, OFFICIAL_DOCS_BASE } from '../../data/official-docs';
 import {
   COLLECTION_META,
   getAllItems,
+  getItems,
   itemDate,
   itemJsonPath,
   itemPath,
@@ -31,12 +33,31 @@ const date = itemDate(item);
 const url = new URL(itemPath(item), Astro.site).href;
 const shareUrl = `https://x.com/intent/post?${new URLSearchParams({ text: `${data.title}｜Grok Bot Forum`, url })}`;
 
+// Docs pages read as one book: a sidebar in the official order, plus previous / next.
+const slug = splitId(item.id).slug;
+const docOrder = OFFICIAL_DOCS.flatMap((g) => g.pages);
+const ourDocs = new Set((await getItems('docs', lang)).map((i) => splitId(i.id).slug));
+const docHref = (s: string) => (ourDocs.has(s) ? `/docs/${s}/` : `${OFFICIAL_DOCS_BASE}${s}`);
+const docIndex = item.collection === 'docs' ? docOrder.findIndex((p) => p.slug === slug) : -1;
+const prevDoc = docIndex > 0 ? docOrder[docIndex - 1] : undefined;
+const nextDoc = docIndex >= 0 && docIndex < docOrder.length - 1 ? docOrder[docIndex + 1] : undefined;
+
+// Glossary links both ways: terms explained on a docs page, and the docs pages behind a term.
+type GlossaryItem = Extract<Item, { collection: 'glossary' }>;
+const glossary = (await getItems('glossary', lang)) as GlossaryItem[];
+const pageTerms =
+  item.collection === 'docs'
+    ? glossary.filter((g) => g.data.docs.includes(slug)).sort((a, b) => a.data.yomi.localeCompare(b.data.yomi, 'ja'))
+    : [];
+const termDocs = item.collection === 'glossary' ? docOrder.filter((p) => item.data.docs.includes(p.slug)) : [];
+
 // The text a reader will copy straight into Grok Bot.
 const copyBlock = item.collection === 'prompts' ? { label: t(lang, 'common.prompt'), text: data.prompt } : null;
 
 const schemaType = {
   docs: 'TechArticle',
   reference: 'TechArticle',
+  glossary: 'DefinedTerm',
   news: 'NewsArticle',
   bots: 'SoftwareApplication',
   prompts: 'CreativeWork',
@@ -44,12 +65,15 @@ const schemaType = {
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': schemaType,
-  [item.collection === 'bots' ? 'name' : 'headline']: data.title,
+  [item.collection === 'bots' || item.collection === 'glossary' ? 'name' : 'headline']: data.title,
   description: data.summary,
   inLanguage: lang,
   url,
   dateModified: isoDate(data.updated),
   ...(item.collection === 'news' ? { datePublished: isoDate(data.published) } : {}),
+  ...(item.collection === 'glossary'
+    ? { alternateName: data.en, inDefinedTermSet: new URL('/glossary/', Astro.site).href }
+    : {}),
   ...(item.collection === 'bots'
     ? { applicationCategory: 'Grok Bot', author: { '@type': 'Person', name: data.creator }, sameAs: data.marketplace }
     : {}),
@@ -67,11 +91,42 @@ const jsonLd = {
   ogImage={`/og/${item.collection}/${splitId(item.id).slug}.png`}
   jsonLd={jsonLd}
 >
-  <div class="container layout reveal">
+  <div class:list={['container layout reveal', { 'has-docnav': docIndex >= 0 }]}>
+    {docIndex >= 0 && (
+      <nav class="docnav" aria-label="ドキュメント">
+        {OFFICIAL_DOCS.map((group) => (
+          <div>
+            <h2>{group.group}</h2>
+            <ul>
+              {group.pages.map((p) => (
+                <li>
+                  <a href={docHref(p.slug)} aria-current={p.slug === slug ? 'page' : undefined}>
+                    {p.title}{!ourDocs.has(p.slug) && <span aria-hidden="true"> ↗</span>}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </nav>
+    )}
     <article>
+      {docIndex >= 0 && (
+        <details class="docnav-mobile">
+          <summary>ドキュメントの目次</summary>
+          <ol>
+            {docOrder.map((p) => (
+              <li><a href={docHref(p.slug)} aria-current={p.slug === slug ? 'page' : undefined}>{p.title}</a></li>
+            ))}
+          </ol>
+        </details>
+      )}
       <header>
         <a class="crumb" href={localizedPath(`/${item.collection}/`, lang)}>{meta.label}</a>
         <h1>{data.title}</h1>
+        {item.collection === 'glossary' && (
+          <p class="term-en">英語表記 <span lang="en">{data.en}</span><span aria-hidden="true">·</span>よみ {data.yomi}</p>
+        )}
         <p class="lede">{data.summary}</p>
         <p class="meta">
           <span>
@@ -133,6 +188,31 @@ const jsonLd = {
         <Content />
       </div>
 
+      {termDocs.length > 0 && (
+        <section class="related">
+          <h2>詳しい解説</h2>
+          <ul>{termDocs.map((p) => <li><a href={docHref(p.slug)}>{p.title}</a></li>)}</ul>
+        </section>
+      )}
+
+      {pageTerms.length > 0 && (
+        <section class="related">
+          <h2>このページの用語</h2>
+          <div class="tags">
+            {pageTerms.map((g) => <a class="chip" href={itemPath(g)} title={g.data.summary}>{g.data.title}</a>)}
+          </div>
+        </section>
+      )}
+
+      {(prevDoc || nextDoc) && (
+        <nav class="pager" aria-label="前後のページ">
+          {prevDoc ? (
+            <a class="prev" href={docHref(prevDoc.slug)}><span>前へ</span>{prevDoc.title}</a>
+          ) : <span />}
+          {nextDoc && <a class="next" href={docHref(nextDoc.slug)}><span>次へ</span>{nextDoc.title}</a>}
+        </nav>
+      )}
+
       {data.sources.length > 0 && (
         <section class="sources" id="sources">
           <h2>{t(lang, 'common.sources')}</h2>
@@ -179,6 +259,131 @@ const jsonLd = {
   }
   article {
     min-width: 0;
+  }
+
+  /* Docs: book-style sidebar in the official order. */
+  .layout.has-docnav {
+    grid-template-columns: 200px minmax(0, var(--w-content)) 200px;
+    gap: 40px;
+  }
+  .docnav {
+    position: sticky;
+    top: calc(var(--nav-h) + var(--s-6));
+    align-self: start;
+    display: grid;
+    gap: var(--s-5);
+    max-height: calc(100vh - var(--nav-h) - var(--s-8));
+    overflow-y: auto;
+    font-size: 13.5px;
+  }
+  .docnav h2 {
+    margin-bottom: var(--s-2);
+    color: var(--fg-subtle);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .docnav ul {
+    display: grid;
+    padding: 0;
+    list-style: none;
+  }
+  .docnav a,
+  .docnav-mobile a {
+    display: block;
+    padding: 5px 0 5px var(--s-3);
+    border-left: 1px solid var(--border);
+    color: var(--fg-muted);
+    line-height: 1.4;
+    text-decoration: none;
+  }
+  .docnav a:hover,
+  .docnav-mobile a:hover {
+    color: var(--fg);
+  }
+  .docnav a[aria-current='page'],
+  .docnav-mobile a[aria-current='page'] {
+    border-left-color: var(--fg);
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .docnav-mobile {
+    display: none;
+    margin-bottom: var(--s-5);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    font-size: 14px;
+  }
+  .docnav-mobile summary {
+    padding: var(--s-3) var(--s-4);
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .docnav-mobile ol {
+    display: grid;
+    padding: 0 var(--s-4) var(--s-3);
+    list-style: none;
+  }
+
+  .term-en {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  .term-en span[lang] {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .related {
+    margin-top: var(--s-7);
+  }
+  .related h2 {
+    margin-bottom: var(--s-3);
+    font-size: 15px;
+  }
+  .related ul {
+    display: grid;
+    gap: var(--s-2);
+    padding-left: 1.2em;
+  }
+  .related .chip {
+    text-decoration: none;
+  }
+  .related .chip:hover {
+    background: var(--bg-hover);
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-3);
+    margin-top: var(--s-7);
+  }
+  .pager a {
+    display: grid;
+    gap: 2px;
+    padding: var(--s-3) var(--s-4);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    color: var(--fg);
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease);
+  }
+  .pager a:hover {
+    background: var(--bg-hover);
+  }
+  .pager span {
+    color: var(--fg-subtle);
+    font-size: 12.5px;
+    font-weight: 400;
+  }
+  .pager .next {
+    grid-column: 2;
+    text-align: right;
   }
   .crumb {
     color: var(--fg-muted);
@@ -358,8 +563,21 @@ const jsonLd = {
     justify-items: start;
   }
 
+  @media (max-width: 1200px) {
+    .layout.has-docnav {
+      grid-template-columns: minmax(0, var(--w-content)) 220px;
+      gap: var(--s-9);
+    }
+    .docnav {
+      display: none;
+    }
+    .docnav-mobile {
+      display: block;
+    }
+  }
   @media (max-width: 1080px) {
-    .layout {
+    .layout,
+    .layout.has-docnav {
       grid-template-columns: minmax(0, var(--w-content));
       gap: var(--s-7);
     }

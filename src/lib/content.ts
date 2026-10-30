@@ -1,7 +1,7 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import { localizedPath, type Lang } from './i18n';
 
-export const COLLECTIONS = ['docs', 'reference', 'bots', 'prompts', 'news'] as const;
+export const COLLECTIONS = ['docs', 'reference', 'glossary', 'bots', 'prompts', 'news'] as const;
 export type CollectionName = (typeof COLLECTIONS)[number];
 export type Item = CollectionEntry<CollectionName>;
 
@@ -14,6 +14,9 @@ export const COLLECTION_META: Record<
   },
   reference: {
     ja: { label: 'まとめ', description: '上限値やプラン比較など、公式ドキュメントに散らばった情報を 1 ページに。' },
+  },
+  glossary: {
+    ja: { label: '用語集', description: 'スキル、ルーティン、Auto Review など、Grok Bot の用語を 1 語ずつ日本語で。' },
   },
   bots: {
     ja: { label: 'ボット', description: '公式マーケットプレイスで公開されている Bot を、日本語で紹介。何をして、何をしないか。' },

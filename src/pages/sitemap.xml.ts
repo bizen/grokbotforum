@@ -5,7 +5,7 @@ import { isoDate } from '../lib/i18n';
 export async function GET({ site }: APIContext) {
   const abs = (path: string) => new URL(path, site).href;
   const pages: { loc: string; lastmod?: string }[] = [
-    ...['/', '/about/', '/agents/', ...COLLECTIONS.map((c) => `/${c}/`)].map((path) => ({ loc: abs(path) })),
+    ...['/', '/about/', '/operator/', '/agents/', ...COLLECTIONS.map((c) => `/${c}/`)].map((path) => ({ loc: abs(path) })),
     ...(await getAllItems()).map((item) => ({ loc: abs(itemPath(item)), lastmod: isoDate(item.data.updated) })),
   ];
 

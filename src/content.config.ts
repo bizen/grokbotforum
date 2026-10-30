@@ -63,6 +63,18 @@ const prompts = defineCollection({
   }),
 });
 
+// One term per item. `yomi` (hiragana) sorts the index; `docs` lists the official page slugs that
+// explain the term, so docs pages can show the terms they use.
+const glossary = defineCollection({
+  loader: loader('glossary'),
+  schema: base.extend({
+    yomi: z.string(),
+    /** The term as it appears in the (English) app UI or official docs. */
+    en: z.string(),
+    docs: z.array(z.string()).default([]),
+  }),
+});
+
 const news = defineCollection({
   loader: loader('news'),
   schema: base.extend({
@@ -70,4 +82,4 @@ const news = defineCollection({
   }),
 });
 
-export const collections = { docs, reference, bots, prompts, news };
+export const collections = { docs, reference, glossary, bots, prompts, news };

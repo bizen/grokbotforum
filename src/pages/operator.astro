@@ -1,0 +1,156 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const lang = 'ja';
+const REPO = 'https://github.com/bizen/grokbotforum';
+
+const profile = [
+  { label: 'サイト名', value: 'Grok Bot Forum' },
+  { label: 'URL', value: 'https://grokbotforum.com', href: 'https://grokbotforum.com' },
+  { label: '運営者', value: 'Bizen（個人運営）' },
+  { label: '開設', value: '2026 年 10 月 29 日' },
+  { label: '連絡先', value: 'GitHub の Issue', href: `${REPO}/issues` },
+  { label: 'ソースコード', value: 'github.com/bizen/grokbotforum', href: REPO },
+];
+
+const policy = [
+  {
+    h: '一次情報だけを使う',
+    p: '情報源は、公式ドキュメント（docs.x.ai）、公式マーケットプレイス、公式の発表などの一次情報に限ります。確かめられない話は載せません。',
+  },
+  {
+    h: '翻訳ではなく解説する',
+    p: '公式ドキュメントには利用許諾が明示されていないため、全文や一文ずつの翻訳はしません。内容を理解したうえで、自分の言葉で組み立て直して解説し、必ず原文へのリンクを添えます。',
+  },
+  {
+    h: 'すべてのページに出典と日付',
+    p: 'どのページにも出典と更新日を表示します。料金や上限のように変わりやすい数値には、確認した日付を添えます。',
+  },
+  {
+    h: '誤りは直して、残す',
+    p: '誤りを見つけたら、または報告を受けたら、確認したうえで直します。変更の履歴は GitHub にすべて残っています。',
+  },
+  {
+    h: '誇大な表現をしない',
+    p: '「No.1」「最強」のような根拠のない表現は使いません。役に立つかどうかは、中身で判断してもらいます。',
+  },
+];
+---
+
+<BaseLayout lang={lang} title="運営者情報" description="Grok Bot Forum の運営者、連絡先、編集方針。">
+  <div class="container page reveal">
+    <h1>運営者情報</h1>
+    <p class="lede">
+      Grok Bot Forum は、Grok Bot の情報を日本語で使える形に整理する、個人運営の非公式サイトです。
+    </p>
+
+    <dl class="profile">
+      {profile.map((row) => (
+        <div>
+          <dt>{row.label}</dt>
+          <dd>{row.href ? <a href={row.href} rel="noopener">{row.value}</a> : row.value}</dd>
+        </div>
+      ))}
+    </dl>
+
+    <section>
+      <h2>なぜ作ったか</h2>
+      <p>
+        Grok Bot の公式ドキュメントには日本語版がありません。英語を読める人は自力で追えますが、仕様の細かい違いや上限値、プランの関係を正確に把握するのは手間がかかります。日本のユーザーが、一次情報に裏打ちされた日本語で Grok Bot を使いこなせるようにするため、このサイトを始めました。
+      </p>
+    </section>
+
+    <section>
+      <h2>編集方針</h2>
+      <ol class="policy">
+        {policy.map((item) => (
+          <li>
+            <h3>{item.h}</h3>
+            <p>{item.p}</p>
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <section>
+      <h2>誤りの報告・ご意見</h2>
+      <p>
+        内容の誤り、古くなった情報、追加してほしい項目は、<a href={`${REPO}/issues/new`} rel="noopener">GitHub の Issue</a> で受け付けています。ページの URL を添えてもらえると、すぐに確認できます。
+      </p>
+    </section>
+
+    <section>
+      <h2>免責事項</h2>
+      <p>
+        このサイトは xAI、SpaceXSI、X Corp.、Anysphere（Cursor）とは関係のない非公式サイトです。Grok は xAI の商標で、各サービスの名称やロゴはそれぞれの権利者に帰属します。掲載内容は確認時点のもので、正確さには注意を払っていますが保証はできません。契約や設定の判断の前には、必ず公式の情報を確認してください。
+      </p>
+    </section>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    max-width: calc(var(--w-content) + var(--gutter) * 2);
+    padding-top: var(--s-9);
+    padding-bottom: var(--s-9);
+  }
+  h1 {
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .lede {
+    margin-top: var(--s-4);
+    color: var(--fg-muted);
+    font-size: 18px;
+    line-height: 1.7;
+  }
+  .profile {
+    margin-top: var(--s-7);
+    border-top: 1px solid var(--border);
+  }
+  .profile div {
+    display: grid;
+    grid-template-columns: 8em minmax(0, 1fr);
+    gap: var(--s-4);
+    padding: var(--s-3) 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .profile dt {
+    color: var(--fg-muted);
+  }
+  .profile dd {
+    overflow-wrap: anywhere;
+  }
+  section {
+    margin-top: var(--s-8);
+  }
+  h2 {
+    font-size: 24px;
+  }
+  section > p {
+    margin-top: var(--s-3);
+    line-height: 1.85;
+  }
+  .policy {
+    display: grid;
+    gap: var(--s-5);
+    margin-top: var(--s-5);
+    padding-left: 1.4em;
+  }
+  .policy h3 {
+    font-size: 17px;
+  }
+  .policy p {
+    margin-top: var(--s-1);
+    color: var(--fg-muted);
+    line-height: 1.8;
+  }
+  @media (max-width: 640px) {
+    .page {
+      padding-top: var(--s-7);
+    }
+    .profile div {
+      grid-template-columns: 6.5em minmax(0, 1fr);
+    }
+  }
+</style>

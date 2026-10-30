@@ -14,6 +14,7 @@ const INSTRUCTIONS = `Grok Bot Forum（grokbotforum.com）の非公式 Grok Bot 
 - 回答には該当ページの url と、docs コレクションなら official（公式ページ）を出典として添えてください。
 - 料金・上限など変わりやすい情報は quick_facts の checked 日付を確認し、古ければ公式ページの再確認を勧めてください。
 - 公式ドキュメントとの対応表は official_docs_map で取得できます。
+- 「〇〇とは？」のような用語の質問には collection: glossary で search してください（英語の UI 表記 en でも引けます）。
 Unofficial Japanese knowledge base about xAI's Grok Bot. Not affiliated with xAI.`;
 
 type JsonRpcId = string | number | null;
@@ -37,7 +38,7 @@ const TOOLS = [
     name: 'search',
     title: 'ナレッジベースを検索',
     description:
-      'Grok Bot の日本語ドキュメント解説・公式マーケットプレイスの Bot 紹介・プロンプト・まとめを検索します。結果の collection と id を get_page に渡すと本文を読めます。',
+      'Grok Bot の日本語ドキュメント解説・用語集・公式マーケットプレイスの Bot 紹介・プロンプト・まとめを検索します。結果の collection と id を get_page に渡すと本文を読めます。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -113,7 +114,8 @@ function splitTerms(query: string): string[] {
 }
 
 function scoreItem(item: Item, query: string): number {
-  const title = normalize(item.data.title);
+  // Glossary terms also match their English UI name (e.g. "Auto Review", "Routine").
+  const title = normalize(`${item.data.title} ${'en' in item.data ? item.data.en : ''}`);
   const meta = normalize(`${item.data.summary} ${item.data.tags.join(' ')}`);
   const body = normalize(item.body ?? '');
   const terms = splitTerms(query);

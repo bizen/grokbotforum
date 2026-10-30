@@ -8,6 +8,8 @@ interface Entry {
   summary: string;
   tags: string[];
   path: string;
+  /** Glossary only: the English UI name. */
+  en?: string;
 }
 
 let index: Promise<Entry[]> | undefined;
@@ -21,7 +23,7 @@ function loadIndex(): Promise<Entry[]> {
 }
 
 function score(entry: Entry, terms: string[]): number {
-  const title = entry.title.toLowerCase();
+  const title = `${entry.title} ${entry.en ?? ''}`.toLowerCase();
   const rest = `${entry.summary} ${entry.tags.join(' ')} ${entry.collectionLabel}`.toLowerCase();
   let total = 0;
   for (const term of terms) {
