@@ -20,30 +20,45 @@ const count = TIER_LIST.reduce((n, g) => n + g.items.length, 0);
     <a href="/tier-list.json">JSON</a>
   </p>
 
-  <div class="tiers">
+  <div class="board">
     {TIER_LIST.map((group) => (
-      <div class="tier">
-        <span class="letter" data-tier={group.tier}>{group.tier}</span>
-        <div class="chips">
-          {group.items.map((item) => (
-            <span class="pair">
-              <a class="chip" href={item.publicUrl} rel="noopener noreferrer">{item.name}</a>
-              {item.guide && <a class="chip guide" href={item.guide}>解説</a>}
-            </span>
-          ))}
-        </div>
-        <details class="reasons">
-          <summary>{group.tier} の評価理由（{group.items.length} 件）</summary>
-          <dl>
-            {group.items.map((item) => (
-              <div>
-                <dt>{item.name}</dt>
-                <dd>{item.reason}</dd>
-              </div>
-            ))}
-          </dl>
-        </details>
+      <div class="row" data-tier={group.tier}>
+        <div class="label">{group.tier}<span class="visually-hidden">ランク</span></div>
+        <ul class="band">
+          {group.items.map((item) => {
+            const href = item.guide ?? item.publicUrl;
+            const external = !item.guide;
+            return (
+              <li>
+                <a class="tile" href={href} rel={external ? 'noopener noreferrer' : undefined} title={item.guide ? '解説あり' : undefined}>
+                  <span class="mono" aria-hidden="true">{item.name.charAt(0).toUpperCase()}</span>
+                  <span class="name">
+                    {item.name}
+                    {item.guide && <span class="visually-hidden">（解説あり）</span>}
+                  </span>
+                  {item.guide && <span class="dot" aria-hidden="true"></span>}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       </div>
+    ))}
+  </div>
+
+  <div class="reasons-wrap">
+    {TIER_LIST.map((group) => (
+      <details class="reasons">
+        <summary>{group.tier} の評価理由（{group.items.length} 件）</summary>
+        <dl>
+          {group.items.map((item) => (
+            <div>
+              <dt>{item.name}</dt>
+              <dd>{item.reason}</dd>
+            </div>
+          ))}
+        </dl>
+      </details>
     ))}
   </div>
 
@@ -59,6 +74,34 @@ const count = TIER_LIST.reduce((n, g) => n + g.items.length, 0);
   .tierlist {
     padding-bottom: var(--s-6);
     border-bottom: 1px solid var(--border);
+
+    /* Tier list exception: classic TierMaker colors, scoped to this board only. */
+    --tier-s: #dc2626;
+    --tier-s-fg: #ffffff;
+    --tier-s-band: rgba(220, 38, 38, 0.06);
+    --tier-a: #c2410c;
+    --tier-a-fg: #ffffff;
+    --tier-a-band: rgba(194, 65, 12, 0.06);
+    --tier-b: #eab308;
+    --tier-b-fg: #1a1500;
+    --tier-b-band: rgba(234, 179, 8, 0.12);
+    --tier-c: #15803d;
+    --tier-c-fg: #ffffff;
+    --tier-c-band: rgba(21, 128, 61, 0.06);
+  }
+  :global(:root[data-theme='dark']) .tierlist {
+    --tier-s-band: rgba(220, 38, 38, 0.18);
+    --tier-a-band: rgba(194, 65, 12, 0.18);
+    --tier-b-band: rgba(234, 179, 8, 0.22);
+    --tier-c-band: rgba(21, 128, 61, 0.18);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .tierlist {
+      --tier-s-band: rgba(220, 38, 38, 0.18);
+      --tier-a-band: rgba(194, 65, 12, 0.18);
+      --tier-b-band: rgba(234, 179, 8, 0.22);
+      --tier-c-band: rgba(21, 128, 61, 0.18);
+    }
   }
   h2 {
     font-size: 22px;
@@ -74,49 +117,128 @@ const count = TIER_LIST.reduce((n, g) => n + g.items.length, 0);
   .meta a {
     color: var(--fg-muted);
   }
-  .tiers {
-    display: grid;
-    gap: var(--s-3);
+
+  /* Board */
+  .board {
     margin-top: var(--s-5);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    overflow: hidden;
   }
-  .tier {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: start;
-    gap: var(--s-3);
+  .row {
+    display: flex;
+    align-items: stretch;
   }
-  .letter {
-    display: inline-flex;
+  .row:not(:first-child) {
+    border-top: 1px solid var(--border);
+  }
+  .row[data-tier='S'] {
+    background: var(--tier-s-band);
+  }
+  .row[data-tier='A'] {
+    background: var(--tier-a-band);
+  }
+  .row[data-tier='B'] {
+    background: var(--tier-b-band);
+  }
+  .row[data-tier='C'] {
+    background: var(--tier-c-band);
+  }
+  .label {
+    flex: 0 0 72px;
+    display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    border: 1px solid var(--border-strong);
-    border-radius: var(--r-sm);
-    color: var(--fg-muted);
-    font-size: 13px;
-    font-weight: 600;
+    border-right: 1px solid var(--border);
+    font-size: 30px;
+    font-weight: 700;
   }
-  .chips {
+  .row[data-tier='S'] .label {
+    background: var(--tier-s);
+    color: var(--tier-s-fg);
+  }
+  .row[data-tier='A'] .label {
+    background: var(--tier-a);
+    color: var(--tier-a-fg);
+  }
+  .row[data-tier='B'] .label {
+    background: var(--tier-b);
+    color: var(--tier-b-fg);
+  }
+  .row[data-tier='C'] .label {
+    background: var(--tier-c);
+    color: var(--tier-c-fg);
+  }
+  .band {
+    flex: 1 1 auto;
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     gap: var(--s-2);
-    padding-top: 2px;
+    padding: var(--s-3);
+    list-style: none;
   }
-  .pair {
-    display: inline-flex;
-    gap: 2px;
-  }
-  .chip {
+
+  /* Tiles */
+  .tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--s-1);
+    width: 132px;
+    padding: var(--s-2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--bg);
+    color: var(--fg);
+    text-align: center;
     text-decoration: none;
+    transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
   }
-  .chip.guide {
-    color: var(--fg-subtle);
-    font-size: 12px;
+  .tile:hover {
+    background: var(--bg-hover);
+    border-color: var(--border-strong);
+  }
+  .mono {
+    display: flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--bg-subtle);
+    color: var(--fg-muted);
+    font-size: 14px;
+    font-weight: 600;
+  }
+  .name {
+    display: -webkit-box;
+    overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    font-size: 13px;
+    line-height: 1.35;
+  }
+  .dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fg-subtle);
+  }
+
+  /* Reasons */
+  .reasons-wrap {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-5);
   }
   .reasons {
-    grid-column: 2;
-    margin-top: var(--s-1);
     font-size: 13px;
   }
   .reasons summary {
@@ -154,13 +276,27 @@ const count = TIER_LIST.reduce((n, g) => n + g.items.length, 0);
     color: var(--fg-subtle);
     font-size: 13px;
   }
+
   @media (max-width: 560px) {
-    .tier {
-      grid-template-columns: 1fr;
-      gap: var(--s-2);
+    .label {
+      flex-basis: 44px;
+      font-size: 20px;
     }
-    .reasons {
-      grid-column: 1;
+    .band {
+      padding: var(--s-2);
+      gap: var(--s-1);
+    }
+    .tile {
+      width: 92px;
+      padding: var(--s-1);
+    }
+    .mono {
+      width: 28px;
+      height: 28px;
+      font-size: 12px;
+    }
+    .name {
+      font-size: 11px;
     }
   }
 </style>

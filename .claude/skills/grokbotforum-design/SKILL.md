@@ -39,6 +39,14 @@ source as the pages.
   "official" wording. Keep the "Unofficial" note in the footer and about page.
 - Animations longer than 200ms or anything that moves on scroll except a fade-in.
 
+### Exception: the bots tier-list board
+The S/A/B/C tier board on `/bots/` (`TierList.astro`) is the one deliberate break from
+monochrome: its label cells use bold classic TierMaker colors (S red, A orange, B
+yellow/gold, C green) and each row may carry a faint tint of that color, scoped as
+`--tier-s/a/b/c` + `--tier-*-band` locally in that component. This is intentional and
+limited to that single board — tiles, meta text, reasons, and every other page stay
+monochrome / meaning-only color.
+
 ## 2. Tokens
 
 Define everything as CSS custom properties in `BaseLayout.astro` (`:root`). Components
