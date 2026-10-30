@@ -4,6 +4,11 @@ summary: "AI駆動開発勉強会 Women's Base #6 がGrok Botをテーマに11�
 tags: ["日本", "イベント"]
 updated: 2026-10-31
 published: 2026-10-30
+image:
+  src: /news/womens-base-grok-bot-event.webp
+  alt: AI駆動開発勉強会 Women's Base #6【Grok Bot編】のイベントバナー
+  credit: AI駆動開発勉強会 Women's Base #6（connpass）
+  creditUrl: https://aid.connpass.com/event/409136/
 sources:
   - url: https://aid.connpass.com/event/409136/
     title: "AI駆動開発勉強会 Women's Base #6【Grok Bot編】(connpass)"

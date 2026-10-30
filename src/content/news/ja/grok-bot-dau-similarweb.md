@@ -4,6 +4,7 @@ summary: "Similarwebの推計で、Grok Botの日次アクティブユーザー�
 tags: ["話題", "ユーザー数"]
 updated: 2026-10-30
 published: 2026-10-30
+xPost: https://x.com/Similarweb/status/2115724259691471150
 sources:
   - url: https://x.com/Similarweb/status/2115724259691471150
     title: "Similarweb (@Similarweb) on X"

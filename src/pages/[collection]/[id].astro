@@ -79,7 +79,9 @@ const jsonLd = {
     : {}),
   citation: data.sources.map((s) => s.url),
   isPartOf: { '@type': 'WebSite', name: 'Grok Bot Forum', url: new URL('/', Astro.site).href },
+  ...(item.collection === 'news' && data.image ? { image: new URL(data.image.src, Astro.site).href } : {}),
 };
+const ogImage = item.collection === 'news' && data.image ? data.image.src : `/og/${item.collection}/${splitId(item.id).slug}.png`;
 ---
 
 <BaseLayout
@@ -88,7 +90,7 @@ const jsonLd = {
   description={data.summary}
   jsonPath={jsonPath}
   ogType="article"
-  ogImage={`/og/${item.collection}/${splitId(item.id).slug}.png`}
+  ogImage={ogImage}
   jsonLd={jsonLd}
 >
   <div class:list={['container layout reveal', { 'has-docnav': docIndex >= 0 }]}>
@@ -124,6 +126,27 @@ const jsonLd = {
       <header>
         <a class="crumb" href={localizedPath(`/${item.collection}/`, lang)}>{meta.label}</a>
         <h1>{data.title}</h1>
+        {item.collection === 'news' && data.image && (
+          <figure class="hero">
+            <img src={data.image.src} alt={data.image.alt} width="1600" height="900" loading="eager" decoding="async" />
+            {data.image.credit && (
+              <figcaption>
+                出典{' '}
+                {data.image.creditUrl ? (
+                  <a href={data.image.creditUrl} rel="noopener">{data.image.credit}</a>
+                ) : data.image.credit}
+              </figcaption>
+            )}
+          </figure>
+        )}
+        {item.collection === 'news' && !data.image && data.xPost && (
+          <div class="x-embed">
+            <blockquote class="twitter-tweet" data-dnt="true" data-theme="light">
+              <a href={data.xPost}>View post on X</a>
+            </blockquote>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8" is:inline></script>
+          </div>
+        )}
         {item.collection === 'glossary' && (
           <p class="term-en">英語表記 <span lang="en">{data.en}</span><span aria-hidden="true">·</span>よみ {data.yomi}</p>
         )}
@@ -322,6 +345,29 @@ const jsonLd = {
     display: grid;
     padding: 0 var(--s-4) var(--s-3);
     list-style: none;
+  }
+
+  .hero {
+    margin: var(--s-5) 0 0;
+  }
+  .hero img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+  }
+  .hero figcaption {
+    margin-top: var(--s-2);
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+  .hero figcaption a {
+    color: var(--fg-subtle);
+  }
+  .x-embed {
+    margin: var(--s-5) 0 0;
   }
 
   .term-en {

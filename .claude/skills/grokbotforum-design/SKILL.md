@@ -39,6 +39,11 @@ source as the pages.
   "official" wording. Keep the "Unofficial" note in the footer and about page.
 - Animations longer than 200ms or anything that moves on scroll except a fade-in.
 
+### Still forbidden
+Decorative imagery is still forbidden everywhere — illustrations, stock photos, generated
+"hero art." The only exceptions are the tier-list colors below and real news hero images
+drawn from an article's own sources (see §7's "News hero media"), never invented ones.
+
 ### Exception: the bots tier-list board
 The S/A/B/C tier board on `/bots/` (`TierList.astro`) is the one deliberate break from
 monochrome: its label cells use bold classic TierMaker colors (S red, A orange, B
@@ -203,6 +208,21 @@ Per collection: `bots` are Japanese guides to Bots on the official Marketplace (
 recipes of our own live in `prompts`; `prompts` add `prompt` (the text
 to copy); `news` add `published`. The slug is the stable id — never rename a
 published file.
+
+**News hero media (optional, `news` only)** — a news item may add `image: { src, alt, credit?,
+creditUrl? }` and/or `xPost` (a full X/Twitter status URL), rendered under the `<h1>` on the article
+page:
+- `image`: only real images drawn from the article's own sources — official screenshots, release
+  images, images the bot creator published, event banners. Store as `public/news/<slug>.webp`
+  (~1600×900, compressed). Set `credit` whenever the source/author is known (required in practice);
+  `creditUrl` links it. Never generate or invent an image. If nothing worthy exists in the sources,
+  omit the field entirely — no placeholder.
+- `xPost`: use the official X embed (`platform.twitter.com/widgets.js`) instead of screenshotting the
+  post. Prefer this when the story *is* the post and there's no separate worthy still image.
+- If both are set, `image` is the hero and `xPost` is not also embedded — the post stays reachable via
+  the sources list.
+- When `image` is set it becomes the page's OG/Twitter card image (`ogImage`); otherwise the generated
+  `/og/<collection>/<slug>.png` satori card is used, including for `xPost`-only articles.
 
 Write content only from primary sources (docs.x.ai/grok-bot/…, official posts). Paraphrase;
 don't copy docs verbatim. If a fact can't be verified, leave it out.

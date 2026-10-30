@@ -79,6 +79,17 @@ const news = defineCollection({
   loader: loader('news'),
   schema: base.extend({
     published: z.coerce.date(),
+    // Only from the article's own sources — see SKILL.md §7. Omit if nothing worthy exists.
+    image: z
+      .object({
+        src: z.string(),
+        alt: z.string(),
+        credit: z.string().optional(),
+        creditUrl: z.url().optional(),
+      })
+      .optional(),
+    // Official X embed, used instead of a screenshot when the post itself is the story.
+    xPost: z.url().optional(),
   }),
 });
 

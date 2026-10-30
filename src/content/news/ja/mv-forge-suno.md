@@ -4,6 +4,11 @@ summary: "日本のXユーザーWillさんが公開しているMV制作Bot「MV 
 tags: ["日本", "テンプレート", "Suno"]
 updated: 2026-10-30
 published: 2026-10-30
+image:
+  src: /news/mv-forge-suno.webp
+  alt: MV Forge by Will のマーケットプレイス紹介画像
+  credit: MV Forge by Will（x.ai マーケットプレイス）
+  creditUrl: https://x.ai/bot/mnZV-Y3B9Oyzhh0Yd7Ytq
 sources:
   - url: https://x.com/old_pgmrs_will/status/2115957922736062700
     title: "Will (@old_pgmrs_will) on X"
