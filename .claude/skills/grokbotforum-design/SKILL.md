@@ -208,6 +208,14 @@ short and clearly marked, and always link the original. A full translation needs
 permission from xAI (legal@x.ai). The official table of contents lives in
 `src/data/official-docs.ts`; pages without an explanation link out with ↗.
 
+**`glossary` collection** — one Grok Bot term per item (`src/content/glossary/ja/<slug>.md`), with
+`yomi` (hiragana reading, sorts the kana-row index), `en` (the English UI name, also searchable),
+and `docs` (official page slugs that explain it). Docs pages list the terms whose `docs` include
+them; term pages link back. Write definitions only from what our docs explanations already state.
+
+**Docs pages read as a book**: a left sidebar in the official order (`src/data/official-docs.ts`)
+on ≥1200px, a collapsible table of contents below that, and previous / next links at the end.
+
 **Home** (`HomeJa.astro`) is a dense, Yahoo! JAPAN–style
 portal (search tabs, timestamped headlines with NEW badges, official-docs rail, quick-facts
 box). Borrow Yahoo's information
