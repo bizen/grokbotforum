@@ -22,9 +22,12 @@ const lang = 'ja';
 
 const navCollections = await getNavCollections(lang);
 // Glossary terms are reference entries, not updates, so they stay out of the 新着 feed.
-const latest = (await getAllItems(lang))
-  .filter((item) => item.collection !== 'glossary')
-  .sort((a, b) => itemDate(b).getTime() - itemDate(a).getTime());
+// Recent news leads: guides and bots are often re-checked in bulk, and their shared
+// updated date would otherwise push every headline off the list.
+const byDate = (a: Item, b: Item) => itemDate(b).getTime() - itemDate(a).getTime();
+const updates = (await getAllItems(lang)).filter((item) => item.collection !== 'glossary').sort(byDate);
+const freshNews = updates.filter((item) => item.collection === 'news' && isNew(item));
+const latest = [...freshNews, ...updates.filter((item) => !freshNews.includes(item))];
 const tabs = [
   { id: 'top', label: '新着', items: latest.slice(0, 8), more: null as string | null },
   ...(await Promise.all(
