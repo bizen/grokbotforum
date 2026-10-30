@@ -70,7 +70,7 @@ const jsonLd = {
           <ul class:list={['shortcuts', side]} aria-label="関連サービス">
             {SHORTCUTS.filter((s) => s.side === side).map((s) => (
               <li>
-                <a href={s.url} rel="noopener">
+                <a href={s.url} rel="noopener" title={s.label}>
                   {s.icon === 'bot' ? (
                     <svg viewBox="0 0 64 64" aria-hidden="true">
                       <circle cx="32" cy="32" r="30" fill="currentColor" />
@@ -82,7 +82,7 @@ const jsonLd = {
                       {s.icon.paths.map((d) => <path d={d} fill="currentColor" />)}
                     </svg>
                   )}
-                  <span>{s.label}</span>
+                  <span class="visually-hidden">{s.label}</span>
                 </a>
               </li>
             ))}
@@ -296,40 +296,34 @@ const jsonLd = {
   }
   .shortcuts {
     display: flex;
+    flex-direction: column;
     gap: var(--s-2);
     padding: 0;
     list-style: none;
   }
   .shortcuts.left {
     grid-area: left;
-    justify-content: flex-end;
+    align-items: flex-end;
   }
   .shortcuts.right {
     grid-area: right;
-    justify-content: flex-start;
+    align-items: flex-start;
   }
   .shortcuts a {
     display: grid;
-    justify-items: center;
-    gap: 6px;
-    width: 72px;
-    padding: var(--s-2) 0;
+    place-items: center;
+    width: 64px;
+    height: 64px;
     border-radius: var(--r-md);
     color: var(--fg);
-    font-size: 12px;
-    text-decoration: none;
     transition: background-color var(--dur) var(--ease);
   }
   .shortcuts a:hover {
     background: var(--bg-hover);
   }
   .shortcuts svg {
-    width: 30px;
-    height: 30px;
-  }
-  .shortcuts span {
-    color: var(--fg-muted);
-    white-space: nowrap;
+    width: 40px;
+    height: 40px;
   }
   .bot-eye {
     fill: var(--bg);
@@ -471,6 +465,10 @@ const jsonLd = {
   }
   .searchbox span {
     flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .ticker {
     display: flex;
@@ -754,19 +752,18 @@ const jsonLd = {
       padding-top: var(--s-1);
     }
     .masthead {
-      grid-template-columns: 1fr 1fr;
-      grid-template-areas: 'logo logo' 'left right';
-      gap: var(--s-1) 0;
+      gap: var(--s-2);
     }
     .shortcuts {
       gap: 0;
     }
     .shortcuts a {
-      width: 64px;
+      width: 48px;
+      height: 48px;
     }
     .shortcuts svg {
-      width: 24px;
-      height: 24px;
+      width: 30px;
+      height: 30px;
     }
     .searchbox kbd {
       display: none;
