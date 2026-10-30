@@ -1,0 +1,691 @@
+---
+// ファーム — Firm × Farm. A living view of your Bots: who clocked in, what they are tending,
+// who failed, who is asleep. For now it runs on demo Bots; the real version will be fed by
+// Bots reporting their own routine runs (Grok Bot has no public API to read Bot state).
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const lang = 'ja';
+
+// Demo staff. `every` is seconds between shifts at demo speed; `night` Bots only work 19:00–6:00 JST.
+const BOTS = [
+  { id: 'chief', name: '秘書', role: '受信箱と予定の整理', routine: '朝のブリーフィング', every: 16 },
+  { id: 'bug', name: 'バグ係', role: '不具合の再現と報告', routine: 'Issue の再現', every: 22 },
+  { id: 'trend', name: 'トレンド番', role: 'X のトレンド監視', routine: '10 分おきの巡回', every: 11 },
+  { id: 'expense', name: '経費さん', role: '領収書の仕分け', routine: '平日 18:00 の締め', every: 28 },
+  { id: 'night', name: '夜勤', role: 'ドキュメントの差分チェック', routine: '深夜の差分チェック', every: 14, night: true },
+];
+
+const W = 980;
+const GROUND = 300;
+const PLOT_X = 290;
+const PLOT_W = 120;
+const PLOT_GAP = 14;
+const CROPS = 6;
+const plots = BOTS.map((bot, i) => ({ ...bot, x: PLOT_X + i * (PLOT_W + PLOT_GAP) }));
+
+const report = JSON.stringify(
+  {
+    bot: 'トレンド番',
+    routine: '10 分おきの巡回',
+    event: 'finished',
+    ok: true,
+    summary: 'AI 関連のトレンド 3 件を要約して下書きに保存',
+    at: '2026-10-30T09:10:00+09:00',
+  },
+  null,
+  2,
+);
+---
+
+<BaseLayout lang={lang} title="ファーム" description="自分の Grok Bot たちが出勤し、畑を耕し、失敗し、眠る様子を眺める場所。Firm（会社）と Farm（農場）の二つの意味を持つ、Bot の稼働ビュー。">
+  <div class="container farm reveal">
+    <header class="head">
+      <p class="eyebrow">Firm × Farm <span class="chip">デモ</span></p>
+      <h1>ファーム</h1>
+      <p class="lede">
+        Bot は社員で、ルーティンは畑。誰がいつ出勤して、何を育てて、どこで転んだかが一目で分かります。
+        いまはデモの Bot たちが働いています。
+      </p>
+      <p class="meta tabular">
+        <span data-farm-clock>--:--</span>
+        <span data-farm-weather>天気を確認中…</span>
+        <span>出勤中 <b data-farm-count>0</b> / {BOTS.length}</span>
+      </p>
+    </header>
+
+    <div class="stage">
+      <svg class="scene" viewBox={`0 104 ${W} 240`} role="img" aria-label="ファームの様子" data-farm-scene>
+        <!-- Sky: the sun, moon, cloud and rain are switched by the script. -->
+        <g class="sky" transform="translate(910 150)">
+          <g class="sun" data-sky="sun">
+            <circle r="16" />
+            {Array.from({ length: 8 }, (_, i) => (
+              <line x1="0" y1="-24" x2="0" y2="-31" transform={`rotate(${i * 45})`} />
+            ))}
+          </g>
+          <path class="moon" data-sky="moon" d="M6 -17 A18 18 0 1 0 6 17 A13 13 0 1 1 6 -17 Z" />
+          <g class="cloud" data-sky="cloud" transform="translate(-34 6)">
+            <path d="M-26 10 a12 12 0 0 1 4 -23 a16 16 0 0 1 30 -4 a12 12 0 0 1 18 14 a9 9 0 0 1 -2 13 Z" />
+          </g>
+          <g class="rain" data-sky="rain" transform="translate(-34 6)">
+            {Array.from({ length: 5 }, (_, i) => <line x1={-20 + i * 10} y1="18" x2={-24 + i * 10} y2="28" />)}
+          </g>
+        </g>
+
+        <!-- The firm: where Bots clock in. -->
+        <g class="firm">
+          <rect x="40" y="168" width="190" height={GROUND - 168} />
+          <path d="M28 168 L135 120 L242 168 Z" />
+          <rect class="sign" x="95" y="140" width="80" height="20" rx="3" />
+          <text class="sign-text" x="135" y="154">FIRM</text>
+          {[0, 1].map((r) =>
+            [0, 1, 2].map((c) => <rect class="win" data-win x={58 + c * 54} y={184 + r * 34} width="34" height="22" rx="2" />),
+          )}
+          <rect class="door" x="118" y="252" width="34" height={GROUND - 252} rx="2" />
+          <rect class="card" x="164" y="248" width="22" height="14" rx="2" />
+          <text class="card-text" x="175" y="258" data-farm-card>IN 0</text>
+        </g>
+
+        <!-- The farm: one bed per Bot, crops grow with each finished run. -->
+        {plots.map((p) => (
+          <g class="plot" data-plot={p.id}>
+            <rect class="bed" x={p.x} y={GROUND - 22} width={PLOT_W} height="22" rx="3" />
+            {Array.from({ length: 3 }, (_, i) => (
+              <line class="furrow" x1={p.x + 8} x2={p.x + PLOT_W - 8} y1={GROUND - 16 + i * 6} y2={GROUND - 16 + i * 6} />
+            ))}
+            {Array.from({ length: CROPS }, (_, i) => {
+              const cx = p.x + 12 + i * ((PLOT_W - 24) / (CROPS - 1));
+              return (
+                <g class="crop" data-crop transform={`translate(${cx} ${GROUND - 22})`}>
+                  <line x1="0" y1="0" x2="0" y2="-14" />
+                  <path d="M0 -8 C-7 -10 -9 -16 -9 -16 C-3 -16 0 -12 0 -8 Z" />
+                  <path d="M0 -11 C7 -13 9 -19 9 -19 C3 -19 0 -15 0 -11 Z" />
+                </g>
+              );
+            })}
+            <text class="plot-label" x={p.x + PLOT_W / 2} y={GROUND + 22}>{p.routine}</text>
+          </g>
+        ))}
+
+        <line class="ground" x1="0" x2={W} y1={GROUND} y2={GROUND} />
+
+        <!-- Staff. Positions are driven by the script. -->
+        {BOTS.map((bot, i) => (
+          <g class="fbot" data-bot={bot.id} transform={`translate(${52 + i * 44} ${GROUND - 16})`}>
+            <g class="body">
+              <circle class="ball" r="15" />
+              <g class="eyes">
+                <rect x="-6" y="-7" width="4" height="10" rx="2" />
+                <rect x="2" y="-8" width="4" height="10" rx="2" />
+              </g>
+            </g>
+            <g class="bubble" transform="translate(0 -30)">
+              <rect x="-26" y="-11" width="52" height="18" rx="9" />
+              <text y="2" data-bubble></text>
+            </g>
+          </g>
+        ))}
+      </svg>
+    </div>
+
+    <div class="grid">
+      <section class="box">
+        <h2 class="box-title">社員名簿</h2>
+        <ul class="roster">
+          {BOTS.map((bot) => (
+            <li data-row={bot.id}>
+              <span class="who">
+                <b>{bot.name}</b>
+                <span>{bot.role}</span>
+              </span>
+              <span class="state" data-state="home">待機</span>
+              <span class="tabular stat"><span data-done>0</span> 件</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section class="box">
+        <h2 class="box-title">出勤簿</h2>
+        <ol class="log tabular" data-farm-log aria-live="polite">
+          <li class="empty">まだ記録はありません</li>
+        </ol>
+      </section>
+    </div>
+
+    <section class="how">
+      <h2>本番ではどう動くか</h2>
+      <p>
+        Grok Bot には、外部から個人の Bot の状態を読み取る公開 API がありません。そこでファームでは、
+        <b>Bot 自身が仕事の前後に報告してくる</b>形にします。パスワードやトークンは預かりません。
+      </p>
+      <ol class="steps">
+        <li>X でサインインして自分のファームを作り、ファーム専用のキーを受け取る</li>
+        <li>配布するスキル「ファームに出勤報告」を Bot に覚えさせ、キーをシークレット入力カードで渡す</li>
+        <li>ルーティンが動くたびに、Bot が開始と終了を報告。ファームのキャラクターがそれに合わせて動く</li>
+      </ol>
+      <figure class="payload">
+        <figcaption>報告の例（予定）</figcaption>
+        <pre><code>{report}</code></pre>
+      </figure>
+      <p class="note">準備中です。公式に Bot の状態を読める API が出たら、そちらにも対応します。</p>
+    </section>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ BOTS, plots, GROUND, PLOT_W, CROPS }}>
+  // define:vars scripts are inline, so this stays plain JavaScript.
+  const scene = document.querySelector('[data-farm-scene]');
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const SPEED = 130; // scene units per second
+  const LABEL = { home: '待機', walk: '移動中', work: '作業中', fail: '失敗', sleep: '睡眠中' };
+  const BUBBLE = { work: '作業中', fail: '！', sleep: 'z z' };
+
+  const jstHour = () => Number(new Intl.DateTimeFormat('en-US', { hour: 'numeric', hourCycle: 'h23', timeZone: 'Asia/Tokyo' }).format(new Date()));
+  const isNight = () => jstHour() >= 19 || jstHour() < 6;
+  const clock = () => new Intl.DateTimeFormat('ja-JP', { hour: '2-digit', minute: '2-digit', second: '2-digit', timeZone: 'Asia/Tokyo' }).format(new Date());
+
+  const logEl = document.querySelector('[data-farm-log]');
+  const log = (text, kind = '') => {
+    logEl.querySelector('.empty')?.remove();
+    const li = document.createElement('li');
+    if (kind) li.dataset.kind = kind;
+    const time = document.createElement('time');
+    time.textContent = clock();
+    const span = document.createElement('span');
+    span.textContent = text;
+    li.append(time, span);
+    logEl.prepend(li);
+    while (logEl.children.length > 12) logEl.lastElementChild.remove();
+  };
+
+  const bots = BOTS.map((cfg, i) => {
+    const plot = plots[i];
+    return {
+      ...cfg,
+      el: scene.querySelector(`[data-bot="${cfg.id}"]`),
+      row: document.querySelector(`[data-row="${cfg.id}"]`),
+      crops: [...scene.querySelectorAll(`[data-plot="${cfg.id}"] [data-crop]`)],
+      home: 52 + i * 44,
+      field: [plot.x + 18, plot.x + PLOT_W - 18],
+      x: 52 + i * 44,
+      target: 52 + i * 44,
+      state: 'home',
+      grown: 0,
+      done: 0,
+      next: performance.now() + (2 + i * 2.5) * 1000,
+      onArrive: null,
+    };
+  });
+
+  const setState = (bot, state) => {
+    bot.state = state;
+    bot.el.dataset.state = state;
+    bot.el.querySelector('[data-bubble]').textContent = BUBBLE[state] ?? '';
+    const cell = bot.row.querySelector('.state');
+    cell.textContent = LABEL[state];
+    cell.dataset.state = state;
+    const working = bots.filter((b) => b.state === 'walk' || b.state === 'work').length;
+    document.querySelector('[data-farm-count]').textContent = String(working);
+    scene.querySelector('[data-farm-card]').textContent = `IN ${working}`;
+  };
+
+  const walkTo = (bot, x, then) => {
+    bot.target = x;
+    bot.onArrive = then;
+    if (still) bot.x = x;
+  };
+
+  const grow = (bot) => {
+    bot.grown += 1;
+    if (bot.grown > CROPS) {
+      bot.grown = 1;
+      log(`${bot.name}が「${bot.routine}」を収穫しました`, 'harvest');
+    }
+    bot.crops.forEach((c, i) => c.classList.toggle('up', i < bot.grown));
+  };
+
+  // One shift: clock in → walk to the bed → tend it → succeed or fail → walk home.
+  const shift = (bot) => {
+    setState(bot, 'walk');
+    log(`${bot.name}が出勤`, 'in');
+    walkTo(bot, bot.field[0], () => {
+      setState(bot, 'work');
+      walkTo(bot, bot.field[1], () => {
+        const ok = Math.random() > 0.12;
+        bot.done += 1;
+        bot.row.querySelector('[data-done]').textContent = String(bot.done);
+        if (ok) {
+          grow(bot);
+          log(`${bot.name}が「${bot.routine}」を完了`);
+          setState(bot, 'walk');
+          walkTo(bot, bot.home, () => {
+            setState(bot, 'home');
+            log(`${bot.name}が退勤`, 'out');
+          });
+        } else {
+          setState(bot, 'fail');
+          log(`${bot.name}が「${bot.routine}」で失敗（承認待ちのまま期限切れ）`, 'fail');
+          setTimeout(() => {
+            setState(bot, 'walk');
+            walkTo(bot, bot.home, () => setState(bot, 'home'));
+          }, 3500);
+        }
+      });
+    });
+  };
+
+  let last = performance.now();
+  const frame = (now) => {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    for (const bot of bots) {
+      const off = bot.night && !isNight();
+      if (bot.state === 'home' && off) setState(bot, 'sleep');
+      if (bot.state === 'sleep' && !off) setState(bot, 'home');
+      if (bot.state === 'home' && now >= bot.next) {
+        bot.next = now + bot.every * 1000 * (0.8 + Math.random() * 0.4);
+        shift(bot);
+      }
+      const step = (bot.state === 'work' ? SPEED * 0.25 : SPEED) * dt;
+      const gap = bot.target - bot.x;
+      if (Math.abs(gap) <= step) {
+        bot.x = bot.target;
+        const then = bot.onArrive;
+        bot.onArrive = null;
+        then?.();
+      } else {
+        bot.x += Math.sign(gap) * step;
+      }
+      bot.el.dataset.dir = gap < -0.5 ? 'left' : 'right';
+      bot.el.setAttribute('transform', `translate(${bot.x.toFixed(1)} ${GROUND - 16})`);
+    }
+    requestAnimationFrame(frame);
+  };
+  bots.forEach((b) => setState(b, b.night && !isNight() ? 'sleep' : 'home'));
+  requestAnimationFrame(frame);
+
+  // Clock and the time of day.
+  const tickClock = () => {
+    document.querySelector('[data-farm-clock]').textContent = `${clock()} JST`;
+    scene.dataset.time = isNight() ? 'night' : 'day';
+  };
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  // Weather follows the real status of xAI's services.
+  const WEATHER = {
+    none: ['clear', '晴れ（status.x.ai 正常）'],
+    minor: ['cloud', 'くもり（status.x.ai 一部に問題）'],
+    maintenance: ['cloud', 'くもり（status.x.ai メンテナンス中）'],
+    major: ['rain', '雨（status.x.ai 障害）'],
+    critical: ['rain', '雨（status.x.ai 重大な障害）'],
+  };
+  const weatherEl = document.querySelector('[data-farm-weather]');
+  fetch('https://status.x.ai/api/compat/summary.json')
+    .then((res) => (res.ok ? res.json() : Promise.reject(res.status)))
+    .then((data) => {
+      const [sky, label] = WEATHER[data.status?.indicator] ?? WEATHER.none;
+      scene.dataset.sky = sky;
+      weatherEl.textContent = `天気：${label}`;
+    })
+    .catch(() => {
+      scene.dataset.sky = 'clear';
+      weatherEl.textContent = '天気：不明';
+    });
+</script>
+
+<style>
+  .farm {
+    padding-top: var(--s-7);
+    padding-bottom: var(--s-9);
+  }
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    color: var(--fg-muted);
+    font-size: 13px;
+    font-weight: 500;
+  }
+  h1 {
+    margin-top: var(--s-2);
+    font-size: clamp(32px, 4vw, 48px);
+  }
+  .lede {
+    max-width: 40em;
+    margin-top: var(--s-3);
+    color: var(--fg-muted);
+    font-size: 16px;
+    line-height: 1.8;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-5);
+    margin-top: var(--s-4);
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  .meta b {
+    color: var(--fg);
+    font-weight: 600;
+  }
+
+  .stage {
+    margin-top: var(--s-6);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    background: var(--bg-subtle);
+    overflow-x: auto;
+  }
+  .scene {
+    display: block;
+    width: 100%;
+    min-width: 640px;
+    height: auto;
+    aspect-ratio: 980 / 240;
+  }
+  .scene :global(*) {
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Sky */
+  .sky circle,
+  .sky line,
+  .moon,
+  .cloud path {
+    fill: none;
+    stroke: var(--fg-muted);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+  .cloud path {
+    fill: var(--bg-subtle);
+  }
+  .rain line {
+    stroke: var(--fg-subtle);
+  }
+  .sky [data-sky] {
+    display: none;
+  }
+  .scene:not([data-time='night']) .sun,
+  .scene[data-time='night'] .moon {
+    display: inline;
+  }
+  .scene[data-sky='rain'] .sun {
+    display: none;
+  }
+  .scene[data-sky='cloud'] .cloud,
+  .scene[data-sky='rain'] .cloud,
+  .scene[data-sky='rain'] .rain {
+    display: inline;
+  }
+
+  /* Firm */
+  .firm rect,
+  .firm path {
+    fill: var(--bg);
+    stroke: var(--fg);
+    stroke-width: 1.5;
+    stroke-linejoin: round;
+  }
+  .firm .sign {
+    fill: var(--fg);
+  }
+  .sign-text {
+    fill: var(--bg);
+    font: 600 11px var(--font-mono);
+    letter-spacing: 0.12em;
+    text-anchor: middle;
+  }
+  .firm .win {
+    fill: var(--bg-subtle);
+  }
+  .scene[data-time='night'] .firm .win {
+    fill: var(--fg-subtle);
+  }
+  .firm .card {
+    fill: var(--bg-subtle);
+  }
+  .card-text {
+    fill: var(--fg-muted);
+    font: 500 7px var(--font-mono);
+    text-anchor: middle;
+  }
+
+  /* Farm */
+  .ground {
+    stroke: var(--fg);
+    stroke-width: 1.5;
+  }
+  .bed {
+    fill: var(--bg-hover);
+    stroke: var(--border-strong);
+  }
+  .furrow {
+    stroke: var(--border-strong);
+    stroke-dasharray: 3 4;
+  }
+  .crop {
+    opacity: 0;
+    transform-box: fill-box;
+    transition: opacity 200ms var(--ease);
+  }
+  .crop:global(.up) {
+    opacity: 1;
+  }
+  .crop line {
+    stroke: var(--fg);
+    stroke-width: 1.5;
+  }
+  .crop path {
+    fill: var(--fg);
+  }
+  .plot-label {
+    fill: var(--fg-muted);
+    font-size: 11px;
+    text-anchor: middle;
+  }
+
+  /* Staff */
+  .ball {
+    fill: var(--fg);
+  }
+  .eyes rect {
+    fill: var(--bg);
+    transition: transform 150ms var(--ease);
+  }
+  .fbot[data-dir='left'] .eyes {
+    transform: translateX(-3px);
+  }
+  .fbot[data-dir='right'] .eyes {
+    transform: translateX(3px);
+  }
+  .fbot[data-state='sleep'] .eyes rect {
+    transform: scaleY(0.15);
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .fbot[data-state='walk'] .body {
+    animation: hop 420ms ease-in-out infinite;
+  }
+  .fbot[data-state='work'] .body {
+    animation: hop 700ms ease-in-out infinite;
+  }
+  .fbot[data-state='fail'] .body {
+    transform: rotate(-24deg) translateY(2px);
+  }
+  .fbot[data-state='sleep'] .body {
+    animation: breathe 3s ease-in-out infinite;
+  }
+  @keyframes hop {
+    50% {
+      transform: translateY(-5px);
+    }
+  }
+  @keyframes breathe {
+    50% {
+      transform: scale(1.04, 0.96);
+    }
+  }
+  .bubble {
+    display: none;
+  }
+  .fbot[data-state='work'] .bubble,
+  .fbot[data-state='fail'] .bubble,
+  .fbot[data-state='sleep'] .bubble {
+    display: inline;
+  }
+  .bubble rect {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+  }
+  .fbot[data-state='fail'] .bubble rect {
+    stroke: var(--danger);
+  }
+  .bubble text {
+    fill: var(--fg-muted);
+    font-size: 10px;
+    text-anchor: middle;
+  }
+  .fbot[data-state='fail'] .bubble text {
+    fill: var(--danger);
+    font-weight: 600;
+  }
+
+  /* Panels */
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+  }
+  .box {
+    padding: var(--s-4);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+  }
+  .box-title {
+    margin-bottom: var(--s-3);
+    font-size: 15px;
+  }
+  .roster,
+  .log {
+    display: grid;
+    padding: 0;
+    list-style: none;
+    font-size: 13.5px;
+  }
+  .roster li {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto 48px;
+    align-items: center;
+    gap: var(--s-3);
+    padding: var(--s-2) 0;
+    border-top: 1px solid var(--border);
+  }
+  .who {
+    display: grid;
+    min-width: 0;
+  }
+  .who b {
+    font-weight: 600;
+  }
+  .who span {
+    color: var(--fg-muted);
+    font-size: 12.5px;
+  }
+  .state {
+    color: var(--fg-muted);
+  }
+  .state[data-state='work'],
+  .state[data-state='walk'] {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .state[data-state='fail'] {
+    color: var(--danger);
+    font-weight: 600;
+  }
+  .stat {
+    color: var(--fg-muted);
+    text-align: right;
+  }
+  .log :global(li) {
+    display: flex;
+    gap: var(--s-3);
+    padding: 5px 0;
+    border-top: 1px solid var(--border);
+  }
+  .log :global(time) {
+    flex-shrink: 0;
+    color: var(--fg-subtle);
+  }
+  .log :global(li[data-kind='fail']) {
+    color: var(--danger);
+  }
+  .log :global(li[data-kind='harvest']) {
+    font-weight: 600;
+  }
+  .log .empty {
+    color: var(--fg-subtle);
+  }
+
+  .how {
+    max-width: var(--w-content);
+    margin-top: var(--s-8);
+  }
+  .how h2 {
+    font-size: 24px;
+  }
+  .how p {
+    margin-top: var(--s-3);
+    color: var(--fg-muted);
+    line-height: 1.85;
+  }
+  .how b {
+    color: var(--fg);
+    font-weight: 600;
+  }
+  .steps {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-4);
+    padding-left: 1.4em;
+    line-height: 1.7;
+  }
+  .payload {
+    margin-top: var(--s-5);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    background: var(--bg-subtle);
+    overflow: hidden;
+  }
+  .payload figcaption {
+    padding: var(--s-2) var(--s-4);
+    border-bottom: 1px solid var(--border);
+    color: var(--fg-muted);
+    font-size: 13px;
+  }
+  .payload pre {
+    padding: var(--s-4);
+    overflow-x: auto;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .note {
+    font-size: 13px;
+  }
+
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .fbot .body {
+      animation: none !important;
+    }
+  }
+</style>

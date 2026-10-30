@@ -121,6 +121,7 @@ const nav = (await getNavCollections(lang)).map((c) => ({
       <div class="mobile-menu" id="mobile-menu" hidden>
         <nav class="container" aria-label="Mobile">
           {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+          <a href={localizedPath('/farm/', lang)}>ファーム</a>
           <a href={localizedPath('/about/', lang)}>{t(lang, 'nav.about')}</a>
           <a href="/en/" hreflang="en" lang="en">English</a>
         </nav>
@@ -142,6 +143,7 @@ const nav = (await getNavCollections(lang)).map((c) => ({
             <h2>{t(lang, 'footer.site')}</h2>
             <ul>
               {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+              <li><a href={localizedPath('/farm/', lang)}>ファーム</a></li>
               <li><a href={localizedPath('/about/', lang)}>{t(lang, 'nav.about')}</a></li>
             </ul>
           </div>
