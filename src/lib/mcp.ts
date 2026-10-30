@@ -2,6 +2,7 @@
 // Spec: https://modelcontextprotocol.io/specification — tools only, no sessions, no SSE.
 import { OFFICIAL_DOCS, OFFICIAL_DOCS_BASE } from '../data/official-docs';
 import { QUICK_FACTS, QUICK_FACTS_CHECKED } from '../data/quick-facts';
+import { TIER_LIST, TIER_LIST_CRITERIA, TIER_LIST_LABEL, TIER_LIST_SOURCE, TIER_LIST_UPDATED } from '../data/tier-list';
 import { COLLECTIONS, COLLECTION_META, getAllItems, getItems, splitId, toRecord, type CollectionName, type Item } from './content';
 import type { Lang } from './i18n';
 
@@ -13,6 +14,7 @@ const INSTRUCTIONS = `Grok Bot Forum（grokbotforum.com）の非公式 Grok Bot 
 - まず search で探し、get_page で本文を読んでから答えてください。
 - 回答には該当ページの url と、docs コレクションなら official（公式ページ）を出典として添えてください。
 - 料金・上限など変わりやすい情報は quick_facts の checked 日付を確認し、古ければ公式ページの再確認を勧めてください。
+- 「どの Bot がおすすめ？」には tier_list（編集部評価、使用テストは未実施）も参考として案内してください。
 - 公式ドキュメントとの対応表は official_docs_map で取得できます。
 - 「〇〇とは？」のような用語の質問には collection: glossary で search してください（英語の UI 表記 en でも引けます）。
 Unofficial Japanese knowledge base about xAI's Grok Bot. Not affiliated with xAI.`;
@@ -84,6 +86,13 @@ const TOOLS = [
     name: 'quick_facts',
     title: 'Grok Bot 早見表',
     description: '対象プラン・対応端末・上限値など、よく調べられる事実を出典と確認日つきで返します。',
+    inputSchema: { type: 'object', properties: {} },
+  },
+  {
+    name: 'tier_list',
+    title: 'テンプレートのティアリスト',
+    description:
+      'Grok Bot Marketplace のテンプレートについて、grokbotforum 編集部が説明文ベースで付けた S/A/B/C ランクと理由を返します。実際の使用テストは未実施です。',
     inputSchema: { type: 'object', properties: {} },
   },
 ].map((tool) => ({ ...tool, annotations: { readOnlyHint: true, openWorldHint: false } }));
@@ -260,6 +269,22 @@ async function callTool(name: string, args: Record<string, any> = {}) {
         QUICK_FACTS.map((f) => `- ${f.label}: ${f.value}（出典 ${f.source}）`).join('\n') +
         `\n\n確認日: ${QUICK_FACTS_CHECKED}`;
       return textResult(text, { checked: QUICK_FACTS_CHECKED, facts: QUICK_FACTS });
+    }
+
+    case 'tier_list': {
+      const text =
+        `${TIER_LIST_LABEL}\n\n` +
+        TIER_LIST.map((g) => `## ${g.tier}\n` + g.items.map((i) => `- ${i.name}: ${i.reason}（${i.publicUrl}）`).join('\n')).join(
+          '\n\n',
+        ) +
+        `\n\n評価基準: ${TIER_LIST_CRITERIA}\n更新: ${TIER_LIST_UPDATED}`;
+      return textResult(text, {
+        label: TIER_LIST_LABEL,
+        criteria: TIER_LIST_CRITERIA,
+        source: TIER_LIST_SOURCE,
+        updated: TIER_LIST_UPDATED,
+        tiers: TIER_LIST,
+      });
     }
 
     default:

@@ -14,6 +14,7 @@ export async function GET({ site }: APIContext) {
       llms: new URL('/llms.txt', site).href,
       collections: Object.fromEntries(COLLECTIONS.map((c) => [c, new URL(`/${c}.json`, site).href])),
       item: 'Replace the trailing slash of any item URL with .json',
+      tierList: new URL('/tier-list.json', site).href,
     },
     facts: { lang: 'ja', checked: QUICK_FACTS_CHECKED, items: QUICK_FACTS },
     items: items.map((item) => ({

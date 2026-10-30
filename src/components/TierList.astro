@@ -1,0 +1,166 @@
+---
+// Editorial tier list of Grok Bot Marketplace templates. Data lives in src/data/tier-list.ts
+// so /tier-list.json and this component never drift apart.
+import { TIER_LIST, TIER_LIST_CRITERIA, TIER_LIST_LABEL, TIER_LIST_SOURCE, TIER_LIST_UPDATED } from '../data/tier-list';
+import { formatDate } from '../lib/i18n';
+
+const updatedLabel = formatDate(new Date(`${TIER_LIST_UPDATED}T00:00:00Z`));
+const count = TIER_LIST.reduce((n, g) => n + g.items.length, 0);
+---
+
+<section class="tierlist">
+  <h2>テンプレートのティアリスト</h2>
+  <p class="meta">
+    {TIER_LIST_LABEL}
+    <span aria-hidden="true">·</span>
+    更新 <time datetime={TIER_LIST_UPDATED}>{updatedLabel}</time>
+    <span aria-hidden="true">·</span>
+    <a href={TIER_LIST_SOURCE.url} rel="noopener noreferrer">{TIER_LIST_SOURCE.title}</a>
+    <span aria-hidden="true">·</span>
+    <a href="/tier-list.json">JSON</a>
+  </p>
+
+  <div class="tiers">
+    {TIER_LIST.map((group) => (
+      <div class="tier">
+        <span class="letter" data-tier={group.tier}>{group.tier}</span>
+        <div class="chips">
+          {group.items.map((item) => (
+            <span class="pair">
+              <a class="chip" href={item.publicUrl} rel="noopener noreferrer">{item.name}</a>
+              {item.guide && <a class="chip guide" href={item.guide}>解説</a>}
+            </span>
+          ))}
+        </div>
+        <details class="reasons">
+          <summary>{group.tier} の評価理由（{group.items.length} 件）</summary>
+          <dl>
+            {group.items.map((item) => (
+              <div>
+                <dt>{item.name}</dt>
+                <dd>{item.reason}</dd>
+              </div>
+            ))}
+          </dl>
+        </details>
+      </div>
+    ))}
+  </div>
+
+  <details class="criteria">
+    <summary>評価基準</summary>
+    <p>{TIER_LIST_CRITERIA}</p>
+  </details>
+
+  <p class="count tabular">全 {count} 件</p>
+</section>
+
+<style>
+  .tierlist {
+    padding-bottom: var(--s-6);
+    border-bottom: 1px solid var(--border);
+  }
+  h2 {
+    font-size: 22px;
+  }
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: var(--s-2);
+    color: var(--fg-muted);
+    font-size: 14px;
+  }
+  .meta a {
+    color: var(--fg-muted);
+  }
+  .tiers {
+    display: grid;
+    gap: var(--s-3);
+    margin-top: var(--s-5);
+  }
+  .tier {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--s-3);
+  }
+  .letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-sm);
+    color: var(--fg-muted);
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    padding-top: 2px;
+  }
+  .pair {
+    display: inline-flex;
+    gap: 2px;
+  }
+  .chip {
+    text-decoration: none;
+  }
+  .chip.guide {
+    color: var(--fg-subtle);
+    font-size: 12px;
+  }
+  .reasons {
+    grid-column: 2;
+    margin-top: var(--s-1);
+    font-size: 13px;
+  }
+  .reasons summary {
+    color: var(--fg-subtle);
+    cursor: pointer;
+  }
+  .reasons dl {
+    display: grid;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
+  }
+  .reasons dt {
+    font-weight: 500;
+  }
+  .reasons dd {
+    margin-top: 2px;
+    color: var(--fg-muted);
+    line-height: 1.7;
+  }
+  .criteria {
+    margin-top: var(--s-5);
+    font-size: 13px;
+  }
+  .criteria summary {
+    color: var(--fg-subtle);
+    cursor: pointer;
+  }
+  .criteria p {
+    margin-top: var(--s-2);
+    color: var(--fg-muted);
+    line-height: 1.8;
+  }
+  .count {
+    margin-top: var(--s-4);
+    color: var(--fg-subtle);
+    font-size: 13px;
+  }
+  @media (max-width: 560px) {
+    .tier {
+      grid-template-columns: 1fr;
+      gap: var(--s-2);
+    }
+    .reasons {
+      grid-column: 1;
+    }
+  }
+</style>

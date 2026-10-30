@@ -18,9 +18,10 @@ export async function GET({ site }: APIContext) {
 
 Every item is available as JSON: replace the trailing slash of an item URL with \`.json\`. Each record has id, collection, lang, title, summary, tags, updated, sources, url, and body (Markdown). Docs items also have \`official\` (the matching docs.x.ai page).
 
-- MCP server (Streamable HTTP, no auth, read-only; tools: search, get_page, list_pages, official_docs_map, quick_facts): ${abs('/mcp')} — setup: ${abs('/agents/')}
+- MCP server (Streamable HTTP, no auth, read-only; tools: search, get_page, list_pages, official_docs_map, quick_facts, tier_list): ${abs('/mcp')} — setup: ${abs('/agents/')}
 - Site index (all items, metadata only): ${abs('/index.json')}
 - All content as plain text: ${abs('/llms-full.txt')}
+- Editorial tier list of Marketplace templates, shown at the top of /bots/: ${abs('/tier-list.json')}
 
 ${sections.join('\n\n')}
 `;

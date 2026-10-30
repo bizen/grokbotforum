@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ItemList from '../../components/ItemList.astro';
+import TierList from '../../components/TierList.astro';
 import { COLLECTIONS, COLLECTION_META, getItems, itemPath, type CollectionName, type Item } from '../../lib/content';
 import { t } from '../../lib/i18n';
 
@@ -44,6 +45,8 @@ const glossaryRows =
       <p class="lede">{meta.description}</p>
       <p class="count tabular">{items.length} {t(lang, 'common.items')} · <a href={`/${collection}.json`}>JSON</a></p>
     </header>
+
+    {collection === 'bots' && <TierList />}
 
     {collection === 'glossary' ? (
       <>

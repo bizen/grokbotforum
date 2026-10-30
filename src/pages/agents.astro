@@ -36,6 +36,7 @@ const tools = [
   { name: 'list_pages', ja: 'コレクションのページ一覧' },
   { name: 'official_docs_map', ja: '公式ページ ↔ 日本語解説の対応表（更新日つき）' },
   { name: 'quick_facts', ja: 'プラン・端末・上限などの早見表（出典と確認日つき）' },
+  { name: 'tier_list', ja: 'マーケットプレイステンプレートの編集部評価（S/A/B/C、使用テストは未実施）' },
 ];
 
 const endpoints = [
@@ -43,6 +44,7 @@ const endpoints = [
   { path: '/llms-full.txt', ja: '全コンテンツを 1 ファイルで' },
   { path: '/index.json', ja: '全ページのメタデータと早見表' },
   { path: '/docs.json', ja: 'コレクションごとの本文つき JSON（docs / bots / prompts など）' },
+  { path: '/tier-list.json', ja: 'マーケットプレイステンプレートの編集部評価（/bots/ 上部のティアリスト）' },
 ];
 
 const t = {
