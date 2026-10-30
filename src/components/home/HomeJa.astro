@@ -284,6 +284,7 @@ const jsonLd = {
   /* Search band */
   .searchband {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     justify-items: center;
     gap: var(--s-2);
     padding: var(--s-2) 0 var(--s-4);
@@ -491,7 +492,9 @@ const jsonLd = {
     min-width: 0;
   }
   .ticker-label {
+    flex-shrink: 0;
     color: var(--fg-subtle);
+    white-space: nowrap;
   }
   .ticker-label::before {
     content: '» ';
@@ -757,8 +760,15 @@ const jsonLd = {
     .searchband {
       padding-top: var(--s-1);
     }
+    /* The logo shrinks to whatever the two shortcut columns leave. */
     .masthead {
+      grid-template-columns: auto minmax(0, 1fr) auto;
       gap: var(--s-2);
+    }
+    .logo {
+      justify-self: center;
+      width: 100%;
+      max-width: 240px;
     }
     .shortcuts {
       gap: 0;

@@ -404,6 +404,14 @@ const nav = (await getNavCollections(lang)).map((c) => ({
       }
 
       @media (max-width: 900px) {
+        .nav-inner {
+          gap: var(--s-3);
+        }
+        /* Gives way to the action buttons on the narrowest phones. */
+        .nav-logo {
+          flex-shrink: 1;
+          min-width: 0;
+        }
         .nav-links {
           display: none;
         }
