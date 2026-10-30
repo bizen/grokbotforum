@@ -2,7 +2,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import StatusBox from '../StatusBox.astro';
 import { OFFICIAL_DOCS, OFFICIAL_DOCS_BASE } from '../../data/official-docs';
-import { OFFICIAL_LINKS } from '../../data/official-links';
+import { OFFICIAL_LINKS, SHORTCUTS } from '../../data/official-links';
 import { QUICK_FACTS, QUICK_FACTS_CHECKED } from '../../data/quick-facts';
 import {
   COLLECTION_META,
@@ -65,10 +65,34 @@ const jsonLd = {
 <BaseLayout lang={lang} jsonPath="/index.json" jsonLd={jsonLd}>
   <div class="portal container">
     <section class="searchband" aria-label={t(lang, 'nav.search')}>
-      <h1 class="logo">
-        <span class="logo-ink" aria-hidden="true"></span>
-        <span class="visually-hidden">Grok Bot Forum</span>
-      </h1>
+      <div class="masthead">
+        {(['left', 'right'] as const).map((side) => (
+          <ul class:list={['shortcuts', side]} aria-label="関連サービス">
+            {SHORTCUTS.filter((s) => s.side === side).map((s) => (
+              <li>
+                <a href={s.url} rel="noopener">
+                  {s.icon === 'bot' ? (
+                    <svg viewBox="0 0 64 64" aria-hidden="true">
+                      <circle cx="32" cy="32" r="30" fill="currentColor" />
+                      <rect class="bot-eye" x="26" y="15" width="8" height="18" rx="4" transform="rotate(-30 30 24)" />
+                      <rect class="bot-eye" x="40" y="12" width="8" height="18" rx="4" transform="rotate(-30 44 21)" />
+                    </svg>
+                  ) : (
+                    <svg viewBox={s.icon.viewBox} aria-hidden="true">
+                      {s.icon.paths.map((d) => <path d={d} fill="currentColor" />)}
+                    </svg>
+                  )}
+                  <span>{s.label}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ))}
+        <h1 class="logo">
+          <span class="logo-ink" aria-hidden="true"></span>
+          <span class="visually-hidden">Grok Bot Forum</span>
+        </h1>
+      </div>
       <div class="scopes">
         <button type="button" class="scope current" data-search-open>すべて</button>
         {navCollections.map((c) => (
@@ -257,6 +281,58 @@ const jsonLd = {
     justify-items: center;
     gap: var(--s-2);
     padding: var(--s-2) 0 var(--s-4);
+  }
+  /* Logo flanked by shortcuts to the services this hub is about. */
+  .masthead {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    grid-template-areas: 'left logo right';
+    align-items: center;
+    gap: var(--s-6);
+    width: 100%;
+  }
+  .masthead .logo {
+    grid-area: logo;
+  }
+  .shortcuts {
+    display: flex;
+    gap: var(--s-2);
+    padding: 0;
+    list-style: none;
+  }
+  .shortcuts.left {
+    grid-area: left;
+    justify-content: flex-end;
+  }
+  .shortcuts.right {
+    grid-area: right;
+    justify-content: flex-start;
+  }
+  .shortcuts a {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    width: 72px;
+    padding: var(--s-2) 0;
+    border-radius: var(--r-md);
+    color: var(--fg);
+    font-size: 12px;
+    text-decoration: none;
+    transition: background-color var(--dur) var(--ease);
+  }
+  .shortcuts a:hover {
+    background: var(--bg-hover);
+  }
+  .shortcuts svg {
+    width: 30px;
+    height: 30px;
+  }
+  .shortcuts span {
+    color: var(--fg-muted);
+    white-space: nowrap;
+  }
+  .bot-eye {
+    fill: var(--bg);
   }
   /* Hand-drawn logo, used as a mask so it takes the text color in both themes.
      Cyberpunk glitch: cyan/magenta copies split off in short bursts; the ink itself stays monochrome. */
@@ -676,6 +752,21 @@ const jsonLd = {
   @media (max-width: 720px) {
     .searchband {
       padding-top: var(--s-1);
+    }
+    .masthead {
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas: 'logo logo' 'left right';
+      gap: var(--s-1) 0;
+    }
+    .shortcuts {
+      gap: 0;
+    }
+    .shortcuts a {
+      width: 64px;
+    }
+    .shortcuts svg {
+      width: 24px;
+      height: 24px;
     }
     .searchbox kbd {
       display: none;
