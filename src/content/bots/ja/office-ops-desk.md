@@ -3,6 +3,8 @@ title: "Office Ops Desk"
 summary: "オフィスの荷物、設備トラブル、入社準備、チームの誕生日を管理し、貼り付けたリストや表から状況報告・まとめ・リマインドを作る総務の Bot。送信は必ず確認後。"
 tags: ["オペレーション"]
 creator: "Erika Cabrera"
+color: orange
+shape: squircle
 marketplace: https://x.ai/bot/marketplace/bots/office-ops-desk
 add: https://x.ai/bot/afZj-XnYkThA4MB7GfZK6
 apps: ["Notion（任意）", "Linear（任意）", "Slack（任意）"]

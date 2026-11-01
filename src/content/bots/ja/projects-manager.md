@@ -3,6 +3,8 @@ title: "Projects Manager"
 summary: "チームの Notion のプロジェクトを Bot につなぎ、プロジェクトごとにチャンネルを作って、専門の Bot たちがタスクを取りに来る仕組みを回す Bot。"
 tags: ["注目", "プロダクト"]
 creator: "Eric Zakariasson"
+color: magenta
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/projects-manager
 featured: true
 apps: ["Notion"]

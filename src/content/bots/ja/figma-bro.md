@@ -3,6 +3,8 @@ title: "figma bro"
 summary: "Figma のフレームを正確な値つきの実装仕様にし、ブリーフから画面を作り、コンポーネント・トークン・モーションのずれを点検するデザイナーとエンジニアのための Bot。"
 tags: ["デザイン", "エンジニアリング"]
 creator: "John Bai"
+color: magenta
+shape: gem
 marketplace: https://x.ai/bot/marketplace/bots/figma-bro
 add: https://x.ai/bot/pXNvc_U2cGyZmheYrUuF_
 apps: ["Figma"]

@@ -3,6 +3,8 @@ title: "Credit Card Max"
 summary: "実際のカードと取引データから、ポイント・キャッシュバック・航空会社やホテルのステータスなど優先したいものに合わせて、どのカードを使うべきかを教える Bot。"
 tags: ["個人", "お金"]
 creator: "Trevin Chow"
+color: cyan
+shape: tablet
 marketplace: https://x.ai/bot/marketplace/bots/credit-card-max
 add: https://x.ai/bot/q4u8YgzGQqCAOUZcg0Lgt
 apps: ["Grok Finance（Plaid）"]

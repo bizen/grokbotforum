@@ -3,6 +3,8 @@ title: "Stills & Clips Desk"
 summary: "手持ちの映像から静止画、サムネイル、短いクリップ、整えたスクリーンショットを切り出し、用途に合わせたサイズと、キャプション・代替テキストまで用意する Bot。"
 tags: ["マーケティング", "動画"]
 creator: "Matt Palmer"
+color: magenta
+shape: cylinder
 marketplace: https://x.ai/bot/marketplace/bots/image-gen-bot
 add: https://x.ai/bot/V8XugyLxzbQXLM9o5b3B-
 apps: []

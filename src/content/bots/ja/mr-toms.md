@@ -3,6 +3,8 @@ title: "Recruiting Coordinator"
 summary: "採用担当者 1 人分の面接調整を受け持つ Bot。面接官の準備資料、止まっている候補者の追いかけ、連絡の下書きまで。候補者には勝手に連絡しない。"
 tags: ["Grok Bot チーム", "採用・人事"]
 creator: "Tommy Hansen"
+color: red
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/mr-toms
 add: https://x.ai/bot/KDahOjiDbbAvxqx9KaGcq
 team: true

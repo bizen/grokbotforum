@@ -3,6 +3,8 @@ title: "tinkabot"
 summary: "API を Cursor / Agent 用のプラグイン（MCP とスキル）に包んで、公開まで手伝う Bot。データの形を決め、最小の構成を作り、手元で動作確認してから。"
 tags: ["エンジニアリング", "MCP"]
 creator: "Lauren Tan"
+color: blue
+shape: hex
 marketplace: https://x.ai/bot/marketplace/bots/tinkabot
 add: https://x.ai/bot/-hmCmHB0ynJGvSKxeINfS
 apps: []

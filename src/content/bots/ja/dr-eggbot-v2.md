@@ -3,6 +3,8 @@ title: "dr eggbot (v2)"
 summary: "Grok Bot を設計して作ってくれる Bot。いくつか質問に答えるだけで、仕事を 1 つに絞り「やらないこと」まで決めた Bot を作成する。"
 tags: ["注目", "Bot づくり"]
 creator: "Lauren Tan"
+color: red
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/dr-eggbot-v2
 add: https://x.ai/bot/_jOdbfkB16zxu7MRcmReE
 featured: true

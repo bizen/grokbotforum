@@ -3,6 +3,8 @@ title: "Flora: Plant Care Log"
 summary: "観葉植物の世話を非公開の日誌に記録し、週 1 回リマインドしてくれる Bot。写真からの植物の見分けや、天気を踏まえたメモも。無料の情報源だけで動く。"
 tags: ["個人"]
 creator: "Rich Silver"
+color: green
+shape: leaf
 marketplace: https://x.ai/bot/marketplace/bots/flora
 add: https://x.ai/bot/dGYdqS9vLSXpxoNCPBHys
 apps: ["X（任意）"]

@@ -3,6 +3,8 @@ title: "Overheard"
 summary: "Reddit、Hacker News、ニュース、X で、あなたの名前・ブランド・URL が言及されたら平日にまとめて知らせる Bot。何もない日は黙っている。"
 tags: ["注目", "マーケティング"]
 creator: "Lenny Rachitsky"
+color: orange
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/overheard
 add: https://x.ai/bot/NIEguoGUjA648fUPle8F5
 featured: true

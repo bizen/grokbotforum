@@ -1,76 +1,138 @@
 ---
-// Site mascot in the style of Grok Bot: a sphere with two slanted capsule eyes that slide toward
-// the pointer. Our own drawing, not xAI's artwork. Clicking it opens search.
-// Motion is skipped under prefers-reduced-motion.
+// Site mascot: the Grok Bot "blob" mark exactly as the official Marketplace draws it
+// (src/data/bot-marks.ts), flat — no gradient or shadow. The eyes follow the pointer and
+// blink now and then, built with the official eye geometry (see the script). Clicking it opens search. Motion is skipped under prefers-reduced-motion.
+import { BOT_MARK_SHAPES, BOT_MARK_VIEWBOX } from '../data/bot-marks';
+
+const mark = BOT_MARK_SHAPES.blob;
 ---
 
 <button class="cursor-bot" type="button" data-search-open aria-label="検索を開く" title="何でも探す（⌘K）">
-  <svg viewBox="0 0 64 64" aria-hidden="true">
-    <defs>
-      <radialGradient id="bot-shade" cx="38%" cy="30%" r="78%">
-        <stop offset="0%" class="hi" />
-        <stop offset="100%" class="lo" />
-      </radialGradient>
-    </defs>
-    <circle class="face" cx="32" cy="32" r="30" fill="url(#bot-shade)" />
-    <g class="eyes" data-bot-eyes>
-      <rect class="eye" x="22.75" y="25" width="6" height="14" rx="3" />
-      <rect class="eye" x="35.25" y="23" width="6" height="14" rx="3" />
-    </g>
+  <svg viewBox={BOT_MARK_VIEWBOX} aria-hidden="true">
+    <path class="face" d={mark.head} />
+    {mark.eyes.map((d) => <path class="eye" d={d} />)}
   </svg>
 </button>
 
 <script>
-  const bot = document.querySelector<HTMLElement>('.cursor-bot');
-  const eyes = bot?.querySelector<SVGGElement>('[data-bot-eyes]');
-  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // Eyes are drawn the way the official mark draws them: a base capsule outline is
+  // re-centered, rotated upright, scaled by width/length, then placed at a seat with an angle.
+  // Gaze moves the seats around the face; a blink shortens each eye along its own axis.
+  const BASE = [
+    [130.36,45.98,132.71,46.19,134.98,46.81,137.11,47.83,138.97,49.28,140.47,51.09,141.68,53.12,142.73,55.23,143.76,57.36,144.78,59.49,145.79,61.62,146.79,63.76,147.76,65.91,148.71,68.07,149.63,70.25,150.52,72.43,151.37,74.63,151.99,76.91,152.1,79.26,151.64,81.57,150.59,83.68,149.04,85.45,147.1,86.78,144.9,87.62,142.56,87.93,140.22,87.71,137.98,86.99,135.93,85.82,134.17,84.24,132.78,82.34,131.69,80.25,130.77,78.08,129.87,75.89,128.94,73.72,128,71.56,127.03,69.4,126.05,67.26,125.05,65.12,124.03,62.99,122.93,60.9,121.87,58.79,121.03,56.59,120.72,54.26,121.1,51.93,122.15,49.83,123.75,48.1,125.76,46.89,128.01,46.19],
+    [176.61,37.08,178.72,37.59,180.7,38.48,182.52,39.65,184.2,41.03,185.71,42.59,187.03,44.31,188.2,46.14,189.26,48.03,190.27,49.96,191.26,51.89,192.23,53.84,193.16,55.8,194.05,57.78,194.92,59.77,195.74,61.78,196.53,63.8,197.27,65.84,197.97,67.9,198.47,70.01,198.63,72.18,198.4,74.33,197.58,76.33,195.95,77.72,193.83,78.08,191.71,77.65,189.76,76.69,188.03,75.38,186.53,73.82,185.28,72.05,184.25,70.13,183.4,68.14,182.63,66.11,181.87,64.07,181.07,62.05,180.25,60.04,179.39,58.05,178.49,56.07,177.57,54.1,176.61,52.15,175.62,50.22,174.59,48.31,173.53,46.41,172.54,44.48,171.86,42.42,171.76,40.26,172.62,38.3,174.45,37.19],
+  ].map((flat) => {
+    const pts: [number, number][] = [];
+    for (let i = 0; i < flat.length; i += 2) pts.push([flat[i], flat[i + 1]]);
+    const cx = pts.reduce((n, p) => n + p[0], 0) / pts.length;
+    const cy = pts.reduce((n, p) => n + p[1], 0) / pts.length;
+    const r = (35 * Math.PI) / 180;
+    // Same normalization as the official generator: center, then rotate by 35°.
+    return pts.map(([x, y]) => {
+      const dx = x - cx;
+      const dy = y - cy;
+      return [dx * Math.cos(r) - dy * Math.sin(r), dx * Math.sin(r) + dy * Math.cos(r)] as [number, number];
+    });
+  });
+  // The official "blob" eye parameters (its resting pose looks up and to the right).
+  const REST = { seat: [[125.97, 76.95], [178.59, 52.08]], ang: [-35.33, -39.8], w: [1.4, 1.14], l: [1.38, 1.38] };
+  const CENTER = 114.2705;
+  const MID = [(REST.seat[0][0] + REST.seat[1][0]) / 2, (REST.seat[0][1] + REST.seat[1][1]) / 2];
+  const REACH = Math.hypot(MID[0] - CENTER, MID[1] - CENTER); // how far the gaze sits from center at rest
+  const REST_DIR = [(MID[0] - CENTER) / REACH, (MID[1] - CENTER) / REACH];
 
-  const MAX = 14; // how far the eyes slide across the sphere, in SVG units
-  const TILT = 45; // degrees the capsules lean when looking fully sideways
-  // Resting pose: looking up and to the right, like the official artwork.
-  const REST = { x: 0.7, y: -0.75 };
+  // Vertical middle of each upright eye: blinks squash toward it, not toward the
+  // point average (the outline's points bunch up at one end).
+  const PIVOT = BASE.map((pts) => {
+    const ys = pts.map((p) => p[1]);
+    return (Math.min(...ys) + Math.max(...ys)) / 2;
+  });
+  const clamp = (n: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, n));
 
-  const pose = (g: SVGGElement, x: number, y: number) => {
-    g.style.transform = `translate(${x * MAX}px, ${y * MAX}px)`;
-    // Capsules lean against the look direction, like eyes wrapping around a sphere.
-    g.style.setProperty('--tilt', `${-x * TILT}deg`);
+  const eyePath = (e: number, gx: number, gy: number, open: number) => {
+    // k = 1 at the official resting gaze, -1 when mirrored to look the other way.
+    const k = clamp(gx / REST_DIR[0], -1, 1);
+    // The pair's midpoint follows the gaze. Looking left or down it travels less: the pair is
+    // wide, and the official pose already uses the full reach only toward the upper right.
+    const mx = CENTER + Math.min(gx, REST_DIR[0]) * REACH * (gx < 0 ? 0.7 : 1);
+    const my = CENTER + gy * REACH * (gy > 0 ? 0.8 : 1);
+    // Keep the official spacing, but level the pair as the gaze turns: the far eye sits higher.
+    const ox = REST.seat[e][0] - MID[0];
+    const oy = (REST.seat[e][1] - MID[1]) * k;
+    const sx = mx + ox;
+    const sy = my + oy;
+    // Lean and near/far width follow the horizontal gaze, mirroring the official pose.
+    const ang = (REST.ang[e] * k * Math.PI) / 180;
+    const wAvg = (REST.w[0] + REST.w[1]) / 2;
+    const w = wAvg + (REST.w[e] - wAvg) * k;
+    const l = REST.l[e];
+    const pv = PIVOT[e];
+    return (
+      'M' +
+      BASE[e]
+        .map(([x, y]) => {
+          const c = x * w;
+          const h = ((y - pv) * open + pv) * l;
+          return `${(sx + c * Math.cos(ang) - h * Math.sin(ang)).toFixed(2)} ${(sy + c * Math.sin(ang) + h * Math.cos(ang)).toFixed(2)}`;
+        })
+        .join('L') +
+      'Z'
+    );
   };
 
-  if (eyes) pose(eyes, REST.x, REST.y);
+  const bot = document.querySelector<HTMLElement>('.cursor-bot');
+  const eyes = bot ? [...bot.querySelectorAll<SVGPathElement>('.eye')] : [];
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  if (bot && eyes && !still) {
-    let target = { ...REST };
-    const current = { ...REST };
+  const state = { x: REST_DIR[0], y: REST_DIR[1], open: 1 };
+  let target = { x: REST_DIR[0], y: REST_DIR[1] };
+  const draw = () => eyes.forEach((el, e) => el.setAttribute('d', eyePath(e, state.x, state.y, state.open)));
+
+  if (bot && eyes.length === 2 && !still) {
     let frame = 0;
+    let blinkUntil = 0;
+    let blinkStart = 0;
 
-    const tick = () => {
-      // Ease toward the target so the gaze glides instead of snapping.
-      current.x += (target.x - current.x) * 0.2;
-      current.y += (target.y - current.y) * 0.2;
-      pose(eyes, current.x, current.y);
-      frame = Math.abs(target.x - current.x) + Math.abs(target.y - current.y) > 0.002 ? requestAnimationFrame(tick) : 0;
+    const tick = (now: number) => {
+      state.x += (target.x - state.x) * 0.18;
+      state.y += (target.y - state.y) * 0.18;
+      // Blink: close and reopen over ~160ms along each eye's own length.
+      if (now < blinkUntil) {
+        const t = (now - blinkStart) / (blinkUntil - blinkStart);
+        state.open = 0.15 + 0.85 * Math.abs(1 - 2 * t);
+      } else {
+        state.open = 1;
+      }
+      draw();
+      const moving = Math.abs(target.x - state.x) + Math.abs(target.y - state.y) > 0.002;
+      frame = moving || now < blinkUntil ? requestAnimationFrame(tick) : 0;
     };
-
-    const look = (clientX: number, clientY: number) => {
-      const rect = bot.getBoundingClientRect();
-      const dx = clientX - (rect.left + rect.width / 2);
-      const dy = clientY - (rect.top + rect.height / 2);
-      const distance = Math.hypot(dx, dy) || 1;
-      const reach = Math.min(distance / 160, 1); // close to the bot = smaller movement
-      target = { x: (dx / distance) * reach, y: (dy / distance) * reach * 0.8 };
+    const wake = () => {
       if (!frame) frame = requestAnimationFrame(tick);
     };
 
-    addEventListener('pointermove', (e) => look(e.clientX, e.clientY), { passive: true });
+    addEventListener(
+      'pointermove',
+      (ev) => {
+        const rect = bot.getBoundingClientRect();
+        const dx = ev.clientX - (rect.left + rect.width / 2);
+        const dy = ev.clientY - (rect.top + rect.height / 2);
+        const dist = Math.hypot(dx, dy) || 1;
+        const reach = Math.min(dist / 200, 1); // close to the bot = eyes nearer the center
+        target = { x: (dx / dist) * reach, y: (dy / dist) * reach };
+        wake();
+      },
+      { passive: true },
+    );
     document.addEventListener('pointerleave', () => {
-      target = { ...REST };
-      if (!frame) frame = requestAnimationFrame(tick);
+      target = { x: REST_DIR[0], y: REST_DIR[1] };
+      wake();
     });
 
-    // Blink every few seconds.
     const blink = () => {
-      bot.classList.add('blink');
-      setTimeout(() => bot.classList.remove('blink'), 140);
+      blinkStart = performance.now();
+      blinkUntil = blinkStart + 160;
+      wake();
       setTimeout(blink, 2500 + Math.random() * 4000);
     };
     setTimeout(blink, 3000);
@@ -79,9 +141,8 @@
 
 <style>
   .cursor-bot {
-    /* Light pages: a black sphere with white eyes. */
-    --bot-hi: #3a3a3a;
-    --bot-lo: #050505;
+    /* Light pages: a black bot with white eyes; dark pages flip it. */
+    --bot-face: #0d0d0d;
     --bot-eye: #ffffff;
     position: fixed;
     left: 20px;
@@ -90,25 +151,22 @@
     width: 56px;
     height: 56px;
     padding: 0;
-    border-radius: 50%;
-    filter: drop-shadow(0 6px 16px rgb(0 0 0 / 0.25));
-    transition: transform var(--dur) var(--ease);
+    border: 0;
+    background: none;
+    transition: opacity var(--dur) var(--ease);
   }
-  /* Dark pages: a white, softly shaded sphere with black eyes. */
   :global(:root[data-theme='dark']) .cursor-bot {
-    --bot-hi: #ffffff;
-    --bot-lo: #9a9a9a;
+    --bot-face: #ededed;
     --bot-eye: #0a0a0a;
   }
   @media (prefers-color-scheme: dark) {
     :global(:root:not([data-theme='light'])) .cursor-bot {
-      --bot-hi: #ffffff;
-      --bot-lo: #9a9a9a;
+      --bot-face: #ededed;
       --bot-eye: #0a0a0a;
     }
   }
   .cursor-bot:hover {
-    transform: translateY(-2px) scale(1.05);
+    opacity: 0.85;
   }
   .cursor-bot:focus-visible {
     outline-offset: 4px;
@@ -119,24 +177,11 @@
     height: 100%;
     overflow: visible;
   }
-  .hi {
-    stop-color: var(--bot-hi);
-  }
-  .lo {
-    stop-color: var(--bot-lo);
-  }
-  .eyes {
-    --tilt: 0deg;
+  .face {
+    fill: var(--bot-face);
   }
   .eye {
     fill: var(--bot-eye);
-    transform-box: fill-box;
-    transform-origin: center;
-    transform: rotate(var(--tilt)) scaleY(1);
-    transition: transform 90ms ease;
-  }
-  .blink .eye {
-    transform: rotate(var(--tilt)) scaleY(0.12);
   }
   @media (max-width: 640px) {
     .cursor-bot {

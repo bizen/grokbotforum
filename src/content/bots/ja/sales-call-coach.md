@@ -3,6 +3,8 @@ title: "Sales Call Coach"
 summary: "営業担当者の商談を文字起こしや録音から採点し、次の商談までに直すべき点を挙げるコーチ役の Bot。引用や数字はでっち上げない。"
 tags: ["営業"]
 creator: "Daniel Brill"
+color: orange
+shape: shield
 marketplace: https://x.ai/bot/marketplace/bots/sales-call-coach
 add: https://x.ai/bot/yZ5MFQFdl32vHt6fcIJAc
 apps: []

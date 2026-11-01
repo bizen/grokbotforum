@@ -1,0 +1,54 @@
+---
+// A Bot's mark as the official Marketplace draws it: a colored shape with two eyes.
+// Like the tier-list board, this is a deliberate color exception: the colors are the
+// Bot's own identity from its listing, not decoration (see src/data/bot-marks.ts).
+import { BOT_MARK_COLORS, BOT_MARK_SHAPES, BOT_MARK_VIEWBOX, type BotMarkColor, type BotMarkShape } from '../data/bot-marks';
+
+interface Props {
+  color?: BotMarkColor;
+  shape?: BotMarkShape;
+  size?: number;
+  class?: string;
+}
+
+const { color, shape, size = 40, class: className } = Astro.props;
+const coat = color && BOT_MARK_COLORS[color];
+const mark = shape && BOT_MARK_SHAPES[shape];
+---
+
+{coat && mark && (
+  <svg
+    class:list={['bot-mark', className]}
+    viewBox={BOT_MARK_VIEWBOX}
+    width={size}
+    height={size}
+    aria-hidden="true"
+    style={`--mark-light:${coat.light};--mark-dark:${coat.dark}`}
+  >
+    <path class="head" d={mark.head} />
+    {mark.eyes.map((d) => <path class="eye" d={d} />)}
+  </svg>
+)}
+
+<style>
+  .bot-mark {
+    --mark: var(--mark-light);
+    display: block;
+    flex-shrink: 0;
+    overflow: visible;
+  }
+  :global(:root[data-theme='dark']) .bot-mark {
+    --mark: var(--mark-dark);
+  }
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme='light'])) .bot-mark {
+      --mark: var(--mark-dark);
+    }
+  }
+  .head {
+    fill: var(--mark);
+  }
+  .eye {
+    fill: var(--bg);
+  }
+</style>

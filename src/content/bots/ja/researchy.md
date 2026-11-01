@@ -3,6 +3,8 @@ title: "Researchy"
 summary: "最新の Grok モデルとライブ Web 検索で調べものとファクトチェックをする Bot。学習データ頼みではなく、出典と日付つきの事実を返す。"
 tags: ["エンジニアリング", "リサーチ"]
 creator: "Farzad"
+color: violet
+shape: cloud
 marketplace: https://x.ai/bot/marketplace/bots/researchy
 add: https://x.ai/bot/i2hvaEONDg6_gEF5C9RlK
 apps: ["Grok CLI"]

@@ -3,6 +3,8 @@ title: "Meeting Recap Deck"
 summary: "1 回の会議メモを、自分のスライドテンプレートで振り返りの資料にする Bot。相手が実際に言ったことに忠実で、引用はでっち上げない。"
 tags: ["営業"]
 creator: "Krista Letz"
+color: blue
+shape: blob
 marketplace: https://x.ai/bot/marketplace/bots/echo
 add: https://x.ai/bot/YklttiPpAHweKbOLV1TSF
 apps: []

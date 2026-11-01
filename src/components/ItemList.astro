@@ -1,5 +1,6 @@
 ---
 import { itemDate, itemPath, type Item } from '../lib/content';
+import BotMark from './BotMark.astro';
 import { formatDate, isoDate, t, type Lang } from '../lib/i18n';
 
 interface Props {
@@ -20,7 +21,8 @@ const { items, lang, filterable = false } = Astro.props;
       const date = itemDate(item);
       return (
         <li data-tags={filterable ? item.data.tags.join('|') : undefined}>
-          <a href={itemPath(item)}>
+          <a href={itemPath(item)} class:list={{ 'has-mark': item.collection === 'bots' && item.data.color && item.data.shape }}>
+            {item.collection === 'bots' && <BotMark color={item.data.color} shape={item.data.shape} size={44} class="mark" />}
             <span class="title">{item.data.title}</span>
             <span class="summary">{item.data.summary}</span>
             <span class="meta">
@@ -49,6 +51,17 @@ const { items, lang, filterable = false } = Astro.props;
     padding: var(--s-5) 0;
     color: var(--fg);
     text-decoration: none;
+  }
+  a.has-mark {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--s-4);
+  }
+  a.has-mark > :not(:global(.mark)) {
+    grid-column: 2;
+  }
+  a :global(.mark) {
+    grid-row: 1 / span 3;
+    margin-top: 2px;
   }
   .title {
     font-size: 17px;

@@ -3,6 +3,8 @@ title: "Imogen"
 summary: "画像を渡すと、いちばん大事な部分に絞った短い代替テキスト（alt）を返す Bot。目の見えない人が画像の要点をつかめるように。"
 tags: ["デザイン", "アクセシビリティ"]
 creator: "Kent C. Dodds"
+color: violet
+shape: egg
 marketplace: https://x.ai/bot/marketplace/bots/imogen
 add: https://x.ai/bot/Eeu5NZp62OzQjtlY4ons2
 apps: []

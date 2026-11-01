@@ -3,6 +3,8 @@ title: "Tradbot"
 summary: "個人のメールとカレンダーを見張り、学校の書類、請求、出欠連絡、送り迎えの予定を取りこぼさないようにする家庭用の Bot。返信は下書きまで。"
 tags: ["注目", "個人"]
 creator: "Claire Vo"
+color: violet
+shape: squircle
 marketplace: https://x.ai/bot/marketplace/bots/tradbot-2
 add: https://x.ai/bot/wOE4e95HNxhSbrzyLkSI-
 featured: true

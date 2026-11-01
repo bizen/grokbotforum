@@ -3,6 +3,8 @@ title: "Startup QA Bot"
 summary: "専用のテストアカウントで毎平日プロダクトを触り、追加された機能、消えた機能、再現手順とスクリーンショットつきのバグ、判断が必要なことを報告する Bot。"
 tags: ["プロダクト", "QA"]
 creator: "Shub Gaur"
+color: green
+shape: shield
 marketplace: https://x.ai/bot/marketplace/bots/startup-qa-bot
 add: https://x.ai/bot/XBauviUoNcdi05-ExoOo4
 apps: []

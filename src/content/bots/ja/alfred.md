@@ -3,6 +3,8 @@ title: "Alfred"
 summary: "会社の Grok Bot 体制を設計・点検・統治する相談役の Bot。重複をなくし、人間の担当者をはっきりさせ、最小の構成を勧める。あなたの「はい」なしには何も変えない。"
 tags: ["オペレーション", "Bot づくり"]
 creator: "Robin Delta"
+color: orange
+shape: squircle
 marketplace: https://x.ai/bot/marketplace/bots/alfred
 add: https://x.ai/bot/p7Gh6HIrfv4AGzIow6-9X
 apps: []

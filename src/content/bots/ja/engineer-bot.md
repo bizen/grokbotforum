@@ -3,6 +3,8 @@ title: "Lingxi's Engineer Bot"
 summary: "タスクをボードで管理し、指定したリポジトリにクラウドエージェントを走らせ、30 分ごとに PR を点検するエンジニアリング監督役の Bot。あなたはレビューとマージに集中。"
 tags: ["エンジニアリング"]
 creator: "Lingxi Li"
+color: cyan
+shape: wedge
 marketplace: https://x.ai/bot/marketplace/bots/engineer-bot
 add: https://x.ai/bot/SxqbG1NT5qEw7ggmHqQu_
 apps: ["GitHub などのリポジトリ", "Cloud Agents", "Notion（任意）"]

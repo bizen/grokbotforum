@@ -3,6 +3,8 @@ title: "SEO & AEO Desk"
 summary: "キーワードを、検索と AI の回答（AEO）の両方を意識したページ案とライター向けの構成案（ブリーフ）に変える Bot。記事そのものは書かない。"
 tags: ["Grok Bot チーム", "マーケティング"]
 creator: "Adam Tanguay"
+color: green
+shape: hex
 marketplace: https://x.ai/bot/marketplace/bots/seo-aeo-desk
 add: https://x.ai/bot/0IhyZWxwbf2cFmsmroZQL
 team: true

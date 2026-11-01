@@ -3,6 +3,8 @@ title: "Home robots"
 summary: "ロボット芝刈り機やロボット掃除機などの家庭用ロボットを、チャットから動かす Bot。Segway Navimow、Matic、Matter 対応のロボットなど。"
 tags: ["個人", "スマートホーム"]
 creator: "Sawyer Merritt"
+color: orange
+shape: pebble
 marketplace: https://x.ai/bot/marketplace/bots/home-robots
 add: https://x.ai/bot/c47Jj2QSSR1UXEcuBgUtQ
 apps: ["Segway Navimow", "Home Assistant（Matter）"]

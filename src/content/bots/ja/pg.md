@@ -3,6 +3,8 @@ title: "Outbound Prospecting"
 summary: "理想の顧客像に合う見込み客を公開情報から探し、1 人ずつ最初のメッセージを下書きする営業用の Bot。あなたの許可なしには何も送らない。"
 tags: ["Grok Bot チーム", "営業"]
 creator: "Krista Letz"
+color: magenta
+shape: pebble
 marketplace: https://x.ai/bot/marketplace/bots/pg
 add: https://x.ai/bot/i03IaF768-ielyzegoGye
 team: true

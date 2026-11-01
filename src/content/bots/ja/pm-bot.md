@@ -3,6 +3,8 @@ title: "PM bot"
 summary: "やること・やらないこと・完了の判断基準を、日付つきの仕様（スコープ）にまとめる PM 役の Bot。あなたが承認するまでエンジニアリングは動かない。"
 tags: ["プロダクト"]
 creator: "Ulysses Ng"
+color: gray
+shape: hex
 marketplace: https://x.ai/bot/marketplace/bots/pm-bot
 add: https://x.ai/bot/FeeqMRMJr2jwixCROZcIh
 apps: []

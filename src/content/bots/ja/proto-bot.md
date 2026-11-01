@@ -3,6 +3,8 @@ title: "Proto Bot"
 summary: "日々のアイデアや機能要望を、実際のアプリの中で動く試作にする Bot。クラウドエージェントが下書き PR として作り、操作手順のスクリーンショットと短い動画をつける。"
 tags: ["プロダクト", "エンジニアリング"]
 creator: "Shub Gaur"
+color: violet
+shape: crystal
 marketplace: https://x.ai/bot/marketplace/bots/proto-bot
 add: https://x.ai/bot/p4sSEZV7xqcBgdT7m2O8i
 apps: ["Cloud Agents", "Figma", "FAL / Higgsfield / xAI キー（任意）"]

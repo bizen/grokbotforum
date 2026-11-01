@@ -1,6 +1,7 @@
 ---
 import { render } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import BotMark from '../../components/BotMark.astro';
 import CopyButton from '../../components/CopyButton.astro';
 import { OFFICIAL_DOCS, OFFICIAL_DOCS_BASE } from '../../data/official-docs';
 import {
@@ -125,6 +126,7 @@ const ogImage = item.collection === 'news' && data.image ? data.image.src : `/og
       )}
       <header>
         <a class="crumb" href={localizedPath(`/${item.collection}/`, lang)}>{meta.label}</a>
+        {item.collection === 'bots' && <BotMark color={data.color} shape={data.shape} size={72} class="title-mark" />}
         <h1>{data.title}</h1>
         {item.collection === 'news' && data.image && (
           <figure class="hero">
@@ -439,6 +441,9 @@ const ogImage = item.collection === 'news' && data.image ? data.image.src : `/og
   }
   .crumb:hover {
     color: var(--fg);
+  }
+  header :global(.title-mark) {
+    margin-top: var(--s-5);
   }
   h1 {
     margin-top: var(--s-3);

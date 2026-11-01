@@ -3,6 +3,8 @@ title: "GTM Loop Closer"
 summary: "会議、メール、Slack、CRM に置き去りになった約束やフォローアップを見つけ、根拠を示して、閉じるための返信・タスク・CRM 更新を下書きする Bot。"
 tags: ["営業"]
 creator: "Jon Grigull"
+color: red
+shape: hex
 marketplace: https://x.ai/bot/marketplace/bots/follow-through-agent
 add: https://x.ai/bot/gj3IlHOOpzecm6xpmPJOt
 apps: ["Salesforce / HubSpot（任意）", "Gmail / Microsoft 365（任意）", "Slack / Teams（任意）", "Granola / Gong（任意）", "Notion（任意）"]

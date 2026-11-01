@@ -16,6 +16,7 @@ import {
   type Item,
 } from '../../lib/content';
 import { localizedPath, t } from '../../lib/i18n';
+import BotMark from '../BotMark.astro';
 
 // Dense, Yahoo! JAPAN–style portal: scan-first layout, same quiet visual system.
 const lang = 'ja';
@@ -166,7 +167,8 @@ const jsonLd = {
             <ul class="messages">
               {bots.map((item) => (
                 <li>
-                  <a href={itemPath(item)}>
+                  <a href={itemPath(item)} class:list={{ 'has-mark': item.data.color && item.data.shape }}>
+                    <BotMark color={item.data.color} shape={item.data.shape} size={36} class="m-mark" />
                     <span class="m-title">{item.data.title}</span>
                     <span class="m-by">{item.data.creator}</span>
                     <span class="m-line">{item.data.summary}</span>
@@ -655,6 +657,18 @@ const jsonLd = {
     background: var(--bg-subtle);
     text-decoration: none;
     transition: background-color var(--dur) var(--ease);
+  }
+  .messages a.has-mark {
+    grid-template-columns: auto minmax(0, 1fr);
+    column-gap: var(--s-3);
+    align-content: start;
+  }
+  .messages a.has-mark > :not(:global(.m-mark)) {
+    grid-column: 2;
+  }
+  :global(.messages .m-mark) {
+    grid-row: 1 / span 3;
+    margin-top: 2px;
   }
   .messages a:hover {
     background: var(--bg-hover);

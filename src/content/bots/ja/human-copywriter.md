@@ -3,6 +3,8 @@ title: "Copy Humanizer"
 summary: "下書き、メール、ページを、人が書いたように自然に書き直す Bot。あなたの文体を保ち、変更点を理由つきで示し、事実はでっち上げない。"
 tags: ["マーケティング", "文章"]
 creator: "Massimo De Luisa"
+color: violet
+shape: tablet
 marketplace: https://x.ai/bot/marketplace/bots/human-copywriter
 add: https://x.ai/bot/YwxIbVEWqXN-HYCxiMCoB
 apps: []

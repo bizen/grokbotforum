@@ -3,6 +3,8 @@ title: "Director"
 summary: "ブリーフから、短編映画、広告、解説動画、ミュージックビデオ、ショートドラマなどの動画を、企画から納品まで仕上げる映像制作の Bot。"
 tags: ["プロダクト", "動画"]
 creator: "Xi Yan"
+color: yellow
+shape: blob
 marketplace: https://x.ai/bot/marketplace/bots/video-director
 add: https://x.ai/bot/r9v2LNQY0VHF8JXe8y6VF
 apps: []

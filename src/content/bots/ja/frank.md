@@ -3,6 +3,8 @@ title: "Executive Assistant"
 summary: "役員秘書（EA）のための Bot。会議室の手配表、面接準備、役員の連絡依頼の管理、Slack チャンネルの棚卸し、表とカレンダーの突き合わせなど。"
 tags: ["オペレーション"]
 creator: "Natasha Kuo"
+color: gray
+shape: arch
 marketplace: https://x.ai/bot/marketplace/bots/frank
 add: https://x.ai/bot/_DnP777DCicZpaTtm9_h5
 apps: ["Google カレンダー", "Gmail", "Slack", "Notion / スプレッドシート"]

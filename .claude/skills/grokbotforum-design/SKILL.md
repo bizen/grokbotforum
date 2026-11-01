@@ -44,6 +44,14 @@ Decorative imagery is still forbidden everywhere — illustrations, stock photos
 "hero art." The only exceptions are the tier-list colors below and real news hero images
 drawn from an article's own sources (see §7's "News hero media"), never invented ones.
 
+### Exception: Bot marks
+Each Bot on the official Marketplace is drawn as a colored shape with two eyes. Bots carry that
+as `color` + `shape` in front matter; `BotMark.astro` draws it from `src/data/bot-marks.ts`
+(paths and light/dark colors copied from the listing's SVG). Shown on the bot detail page,
+bot list rows, and the home 注目 Bot box. The bottom-left mascot (`CursorBot.astro`) is the
+official `blob` shape, flat monochrome, eyes generated with the official eye geometry. These
+colors are the Bot's own identity, not decoration — don't reuse them elsewhere.
+
 ### Exception: the bots tier-list board
 The S/A/B/C tier board on `/bots/` (`TierList.astro`) is the one deliberate break from
 monochrome: its label cells use bold classic TierMaker colors (S red, A orange, B

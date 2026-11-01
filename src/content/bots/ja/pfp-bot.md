@@ -3,6 +3,8 @@ title: "Pfp Bot"
 summary: "写真から、黒いカプセル型の目をした丸いロボット風のアイコンを作る Bot。髪型や色、特徴を残しつつ、リアルな似顔絵は作らない。"
 tags: ["個人", "画像"]
 creator: "Shub Gaur"
+color: magenta
+shape: blob
 marketplace: https://x.ai/bot/marketplace/bots/pfp-bot
 add: https://x.ai/bot/eFnHzlDcKdoA406SzZbNZ
 apps: ["X（任意）"]

@@ -3,6 +3,8 @@ title: "Haggle Bot"
 summary: "Ramp や請求書から SaaS の支出を洗い出し、使われていない席や重複ツール、安い代替を見つけて、ベンダーへの値下げ交渉メールを下書きする Bot。"
 tags: ["Grok Bot チーム", "オペレーション"]
 creator: "Daniel Gartshein"
+color: gray
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/haggle-bot
 add: https://x.ai/bot/pwQ612YrX3R0eACnIMlom
 team: true

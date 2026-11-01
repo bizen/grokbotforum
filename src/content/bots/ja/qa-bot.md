@@ -3,6 +3,8 @@ title: "QA bot"
 summary: "公開中のデプロイを受け入れ基準のチェックリストで確かめ、リリース前に合格・不合格を返す Bot。ビルドが通っただけでは合格にしない。"
 tags: ["エンジニアリング", "QA"]
 creator: "Ulysses Ng"
+color: magenta
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/qa-bot
 add: https://x.ai/bot/lKQWoQAvYgg_7Bkg2R-m7
 apps: ["GitHub", "Vercel などのデプロイ先"]

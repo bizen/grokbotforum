@@ -3,6 +3,8 @@ title: "Clip Bot"
 summary: "講演、ポッドキャスト、インタビューなどの長い録画・録音から見どころを見つけ、字幕つきの縦型ショート動画に切り出す Bot。投稿はしない。"
 tags: ["マーケティング", "動画"]
 creator: "This Week in AI"
+color: cyan
+shape: wedge
 marketplace: https://x.ai/bot/marketplace/bots/clip-bot
 add: https://x.ai/bot/-L1yFJ5mtwPgn3O_iYUo_
 apps: []

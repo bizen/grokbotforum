@@ -3,6 +3,8 @@ title: "Event Request Desk"
 summary: "イベント招待、スポンサー、登壇、出展、提携などの依頼を、チームの基準で採点して「受ける・断る・今は見送り・要確認」を提案し、返信を下書きする Bot。"
 tags: ["オペレーション"]
 creator: "Emma Weyrauch"
+color: gray
+shape: wedge
 marketplace: https://x.ai/bot/marketplace/bots/event-request-desk
 add: https://x.ai/bot/hp7QlVUPuYUp09kc6IFAA
 apps: ["Slack（任意）"]

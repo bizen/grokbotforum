@@ -3,6 +3,8 @@ title: "Talent Discovery"
 summary: "1 つの募集職種について、条件に合う人を公開情報から探し、すでに選考中の人を除いて、日付つきの候補リストを作るスカウト用の Bot。"
 tags: ["採用・人事"]
 creator: "Tommy Hansen"
+color: yellow
+shape: dome
 marketplace: https://x.ai/bot/marketplace/bots/sherlock
 add: https://x.ai/bot/vIX2YW6rr6nQnf8-Rhyzc
 apps: ["Ashby / Greenhouse / Lever / Workday（任意）"]

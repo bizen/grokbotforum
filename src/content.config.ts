@@ -1,6 +1,7 @@
 import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
+import { BOT_MARK_COLORS, BOT_MARK_SHAPES } from './data/bot-marks';
 
 // Files live at src/content/<collection>/ja/<slug>.md (the site is Japanese-only).
 const loader = (name: string) => glob({ pattern: 'ja/**/*.md', base: `./src/content/${name}` });
@@ -39,6 +40,9 @@ const bots = defineCollection({
   loader: loader('bots'),
   schema: base.extend({
     creator: z.string(),
+    /** The Bot's mark on the marketplace listing (colored shape with eyes). */
+    color: z.enum(Object.keys(BOT_MARK_COLORS) as [keyof typeof BOT_MARK_COLORS]).optional(),
+    shape: z.enum(Object.keys(BOT_MARK_SHAPES) as [keyof typeof BOT_MARK_SHAPES]).optional(),
     /** Marketplace listing page. */
     marketplace: z.url(),
     /** "Import Bot" link, when the listing exposes one. */

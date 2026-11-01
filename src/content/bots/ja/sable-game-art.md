@@ -3,6 +3,8 @@ title: "Game Art Director"
 summary: "ゲームのコンセプトを、スタイルガイド、カラーパレット、画像生成ツール用のプロンプト集にし、スプライトシートの切り出しや絵柄のずれの点検までする Bot。"
 tags: ["デザイン", "ゲーム"]
 creator: "Danny Limanseta"
+color: violet
+shape: teardrop
 marketplace: https://x.ai/bot/marketplace/bots/sable-game-art
 add: https://x.ai/bot/KQnsHIvv4_Xk7HyhmewP3
 apps: []

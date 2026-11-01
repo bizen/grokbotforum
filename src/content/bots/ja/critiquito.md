@@ -3,6 +3,8 @@ title: "Critiquito: Design Critique"
 summary: "画面のスクリーンショット、Figma フレーム、URL からデザインを講評し、ユーザーへの影響順に具体的な直し方を示す Bot。ファイルは編集しない。"
 tags: ["デザイン"]
 creator: "Manuel Muñoz Solera"
+color: black
+shape: squircle
 marketplace: https://x.ai/bot/marketplace/bots/critiquito
 add: https://x.ai/bot/NqdH9qGvrq-yWRaXhJGM-
 apps: []
