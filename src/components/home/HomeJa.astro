@@ -76,7 +76,7 @@ const jsonLd = {
           <ul class:list={['shortcuts', side]} aria-label="関連サービス">
             {SHORTCUTS.filter((s) => s.side === side).map((s) => (
               <li>
-                <a href={s.url} rel="noopener" title={s.label}>
+                <a href={s.url} rel="noopener" title={s.label} data-shortcut={s.label}>
                   {s.icon === 'bot' ? (
                     <svg viewBox="0 0 64 64" aria-hidden="true">
                       <circle cx="32" cy="32" r="30" fill="currentColor" />
@@ -319,8 +319,8 @@ const jsonLd = {
   .shortcuts a {
     display: grid;
     place-items: center;
-    width: 64px;
-    height: 64px;
+    width: 48px;
+    height: 48px;
     border-radius: var(--r-md);
     color: var(--fg);
     transition: background-color var(--dur) var(--ease);
@@ -329,8 +329,13 @@ const jsonLd = {
     background: var(--bg-hover);
   }
   .shortcuts svg {
-    width: 40px;
-    height: 40px;
+    width: 28px;
+    height: 28px;
+  }
+  /* The X glyph fills its whole box, so it reads larger than the others at the same size. */
+  .shortcuts [data-shortcut='X'] svg {
+    width: 20px;
+    height: 20px;
   }
   .bot-eye {
     fill: var(--bg);
@@ -774,12 +779,16 @@ const jsonLd = {
       gap: 0;
     }
     .shortcuts a {
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
     }
     .shortcuts svg {
-      width: 30px;
-      height: 30px;
+      width: 22px;
+      height: 22px;
+    }
+    .shortcuts [data-shortcut='X'] svg {
+      width: 16px;
+      height: 16px;
     }
     .searchbox kbd {
       display: none;
