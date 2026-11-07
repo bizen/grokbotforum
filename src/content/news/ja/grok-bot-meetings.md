@@ -2,7 +2,7 @@
 title: "Grok Bot が Zoom・Google Meet・Teams の会議に参加できるように。段階展開中"
 summary: "Grok Bot がビデオ会議に参加してメモや決定事項をまとめる機能が、一部アカウントで有効になり始めた。公式 changelog にはまだ載っていない。"
 tags: ["公式", "アップデート", "会議"]
-updated: 2026-11-07
+updated: 2026-11-08
 published: 2026-11-07
 image:
   src: /news/grok-bot-meetings.webp
@@ -22,6 +22,8 @@ sources:
     title: "kou (@zeetakou) on X（実際に参加できた報告）"
   - url: https://grokbot.guru/videos/meetings/
     title: "Send your bot to a meeting（grokbot.guru）"
+  - url: https://x.com/alexmichael/status/2119080195491606951
+    title: "Alex (@alexmichael) on X（機能が消えたという報告）"
 ---
 
 Alex さん（@alexmichael）が日本時間11月6日未明（2026-11-06T00:09 UTC）、自分のアカウントで Grok Bot がビデオ会議に参加できるようになったと X に投稿しました。Meet、Zoom、Teams のいずれかのリンクを貼って参加するよう伝えるか、カレンダーからリンクを取得させれば、Bot が会議に入ってメモを取り、決定事項とアクションアイテムをまとめてくれるという内容です。会議中のチャットに返信させることもできるそうです。
@@ -35,3 +37,5 @@ Grok（@grok）はこの投稿への返信で、Bot は会議の「listen-only�
 Brian Roemmele さん（@BrianRoemmele）は、Zoom の会議向けに使える相棒 Bot のテンプレートを公開しています（https://x.ai/bot/s81dzLlb2LIy7uEVtBrl6）。同氏によると、カメラにはデフォルトでアバターが映るだけで、Bot 自身が話すわけではないとのことです。
 
 この機能は全員に一度に展開されているわけではなく、まだ使えないアカウントもあります。日本での利用可否については、現時点でユーザー個別の報告以上のことは分かっていません。
+
+**追記（11月8日）** 最初にこの機能を報告した Alex さんは11月7日、自分のアカウントから会議機能が消えたと投稿し、誤って公開されたのではないかと書いています。この件について、公式の説明はまだ見つかっていません。
